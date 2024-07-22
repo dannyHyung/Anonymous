@@ -1,12 +1,18 @@
 import React from 'react';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { APIProvider } from './contexts/APIContext';
+import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Anonymous Community</h1>
-      {/* Your components will go here */}
-    </div>
+    <APIProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          {/* Add more routes here as needed */}
+        </Routes>
+      </Router>
+    </APIProvider>
   );
 }
 
