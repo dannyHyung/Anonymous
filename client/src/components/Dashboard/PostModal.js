@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { Modal, Box, TextField, Button, Typography } from '@mui/material';
 import { useAPI } from '../../contexts/APIContext';
 
-function PostModal({ onClose }) {
+function PostModal({ onClose, onPostCreated }) {
   const { createPost } = useAPI();
   const [content, setContent] = useState('');
   const [image, setImage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createPost(content, image);
-    onClose();
+    await onPostCreated(content, image);
   };
 
   return (
