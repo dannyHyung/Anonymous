@@ -9,6 +9,7 @@ export const useAPI = () => useContext(APIContext);
 
 // API Provider component
 export const APIProvider = ({ children }) => {
+  const [refresh, setRefresh] = useState(true);
 
   const fetchPosts = async () => {
     try {
@@ -21,15 +22,26 @@ export const APIProvider = ({ children }) => {
 
   const createPost = async (content, image) => {
     try {
-      const response = await axiosInt.post('/createPosts', { content, image });
+      const response = await axiosInt.post('/createPost', { content, image });
+      setRefresh(true);
       return response
     } catch (error) {
       console.error('Failed to create post', error);
     }
   };
 
+  const deletePost = async (postId) => {
+    try {
+      const response = await axiosInt.post('/deletePost', {postId});
+      setRefresh(true);
+      return response;
+    } catch (error) {
+      console.error('Failed to delete post', error);
+    }
+  }
+
   return (
-    <APIContext.Provider value={{ fetchPosts, createPost }}>
+    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, refresh, setRefresh }}>
       {children}
     </APIContext.Provider>
   );

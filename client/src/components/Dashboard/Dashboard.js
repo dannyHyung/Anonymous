@@ -5,18 +5,21 @@ import Post from './Post';
 import { useAPI } from '../../contexts/APIContext';
 
 function Dashboard() {
-    const { fetchPosts, createPost } = useAPI();
+    const { fetchPosts, createPost, refresh, setRefresh } = useAPI();
     const [showModal, setShowModal] = useState(false);
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
-        loadPosts();
-    }, []);
+        if (refresh) {
+            loadPosts();
+        }
+    }, [refresh]);
 
     const loadPosts = async () => {
         try {
             const response = await fetchPosts();
             setPosts(response.data);
+            setRefresh(false);
         } catch (err) {
             console.error('Failed to fetch posts', err);
         }
@@ -40,7 +43,7 @@ function Dashboard() {
                 <Grid container spacing={3}>
                     {posts.map((post) => (
                         <Grid item xs={12} key={post.id}>
-                            <Post content={post.content} image={post.image} date={post.date} />
+                            <Post id={post.post_id} content={post.content} image={post.image} date={post.date} />
                         </Grid>
                     ))}
                 </Grid>
