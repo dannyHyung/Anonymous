@@ -3,13 +3,31 @@ import { Modal, Box, TextField, Button, Typography } from '@mui/material';
 import { useAPI } from '../../contexts/APIContext';
 
 function PostModal({ onClose, onPostCreated }) {
-  const { createPost } = useAPI();
+  const { createPost, uploadFile } = useAPI();
   const [content, setContent] = useState('');
-  const [image, setImage] = useState('');
+  const [imageURL, setImageURL] = useState('');
+  const [imageFile, setImageFile] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onPostCreated(content, image);
+    let imageUrl = imageURL;
+
+    if (imageFile) {
+      try {
+        imageUrl = await uploadFile(imageFile);
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+        // Optionally show an error message to the user
+        return;
+      }
+    }
+
+    await onPostCreated(content, imageUrl);
+    onClose();
+  };
+
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
   };
 
   return (
@@ -33,8 +51,13 @@ function PostModal({ onClose, onPostCreated }) {
             variant="outlined"
             fullWidth
             margin="normal"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
+            value={imageURL}
+            onChange={(e) => setImageURL(e.target.value)}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
           />
           <Box mt={2} display="flex" justifyContent="flex-end" gap={2}>
             <Button onClick={onClose} variant="contained" color="secondary">Cancel</Button>

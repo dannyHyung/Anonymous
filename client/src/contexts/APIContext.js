@@ -40,8 +40,25 @@ export const APIProvider = ({ children }) => {
     }
   }
 
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axiosInt.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data.url; // Assuming the backend returns the URL of the uploaded file
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  };
+
   return (
-    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, refresh, setRefresh }}>
+    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, refresh, setRefresh, uploadFile }}>
       {children}
     </APIContext.Provider>
   );
