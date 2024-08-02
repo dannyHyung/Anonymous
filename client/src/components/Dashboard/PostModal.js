@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import { Modal, Box, TextField, Button, Typography } from '@mui/material';
+import { Modal, Box, TextField, Button, Typography, Switch, FormControlLabel } from '@mui/material';
 import { useAPI } from '../../contexts/APIContext';
 
 function PostModal({ onClose, onPostCreated }) {
-  const { createPost, uploadFile } = useAPI();
+  const { createPost, uploadImage } = useAPI();
   const [content, setContent] = useState('');
   const [imageURL, setImageURL] = useState('');
   const [imageFile, setImageFile] = useState(null);
+  const [useImageURL, setUseImageURL] = useState(false); // State to toggle between URL and file input
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     let imageUrl = imageURL;
 
-    if (imageFile) {
+    if (!useImageURL && imageFile) {
       try {
-        imageUrl = await uploadFile(imageFile);
+        imageUrl = await uploadImage(imageFile);
       } catch (error) {
         console.error('Failed to upload image:', error);
         // Optionally show an error message to the user
@@ -30,10 +31,18 @@ function PostModal({ onClose, onPostCreated }) {
     setImageFile(e.target.files[0]);
   };
 
+  const handleSwitchChange = () => {
+    setUseImageURL(!useImageURL);
+    setImageURL('');
+    setImageFile(null);
+  };
+
   return (
     <Modal open onClose={onClose}>
-      <Box sx={{ ...modalStyle }}>
-        <Typography variant="h6" component="h2">Create a Post</Typography>
+      <Box sx={modalStyle}>
+        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+          Create a Post
+        </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
             label="What's on your mind?"
@@ -46,19 +55,29 @@ function PostModal({ onClose, onPostCreated }) {
             onChange={(e) => setContent(e.target.value)}
             required
           />
-          <TextField
-            label="Image URL (optional)"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={imageURL}
-            onChange={(e) => setImageURL(e.target.value)}
+          <FormControlLabel
+            control={<Switch checked={useImageURL} onChange={handleSwitchChange} />}
+            label="Use Image URL"
+            sx={{ mt: 2, mb: 2 }}
           />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+          {useImageURL ? (
+            <TextField
+              label="Image URL"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={imageURL}
+              onChange={(e) => setImageURL(e.target.value)}
+              size='small'
+            />
+          ) : (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ marginTop: '16px', marginBottom: '16px' }}
+            />
+          )}
           <Box mt={2} display="flex" justifyContent="flex-end" gap={2}>
             <Button onClick={onClose} variant="contained" color="secondary">Cancel</Button>
             <Button type="submit" variant="contained" color="primary">Post</Button>
@@ -78,6 +97,8 @@ const modalStyle = {
   bgcolor: 'background.paper',
   boxShadow: 24,
   p: 4,
+  borderRadius: '16px', // Add rounded corners
+  boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)', // Add 3D shadow effect
 };
 
 export default PostModal;

@@ -65,7 +65,7 @@ function Post({ id, content, image, date }) {
             Cancel
           </Button>
           <Button onClick={handleConfirmDelete} color="primary" autoFocus>
-            Yes, Delete
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
