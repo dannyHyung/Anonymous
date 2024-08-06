@@ -5,7 +5,7 @@ import Post from './Post';
 import { useAPI } from '../../contexts/APIContext';
 
 function Dashboard() {
-    const { fetchPosts, createPost, refresh, setRefresh } = useAPI();
+    const { fetchPosts, createPost, refresh, setRefresh, deletePost, likePost } = useAPI();
     const [showModal, setShowModal] = useState(false);
     const [posts, setPosts] = useState([]);
 
@@ -19,7 +19,7 @@ function Dashboard() {
         try {
             const response = await fetchPosts();
             setPosts(response.data);
-            setRefresh(false);
+            // setRefresh(false);
         } catch (err) {
             console.error('Failed to fetch posts', err);
         }
@@ -27,8 +27,18 @@ function Dashboard() {
 
     const handlePostCreated = async (content, image) => {
         await createPost(content, image);
-        loadPosts(); // Refresh posts after creating a new post
-        setShowModal(false); // Close the modal
+        loadPosts(); 
+        setShowModal(false); 
+    };
+
+    const handleLikePost = async (postId) => {
+        const response = await likePost(postId);
+        setPosts(posts.map(post => post.post_id === postId ? response.data : post));
+    };
+
+    const handleDeletePost = async (postId) => {
+        await deletePost(postId);
+        setPosts(posts.filter(post => post.post_id !== postId));
     };
 
     return (
@@ -42,8 +52,17 @@ function Dashboard() {
                 </header>
                 <Grid container spacing={3}>
                     {posts.map((post) => (
-                        <Grid item xs={12} key={post.id}>
-                            <Post id={post.post_id} content={post.content} image={post.image} date={post.date} />
+                        <Grid item xs={12} key={post.post_id}>
+                            <Post 
+                                id={post.post_id} 
+                                content={post.content} 
+                                image={post.image} 
+                                date={post.date} 
+                                likes={post.likes} 
+                                comments={post.comments} 
+                                onLike={handleLikePost} 
+                                onDelete={handleDeletePost}
+                            />
                         </Grid>
                     ))}
                 </Grid>

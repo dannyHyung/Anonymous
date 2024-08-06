@@ -58,3 +58,24 @@ exports.deletePost = async (req, res) => {
     }
   };
 
+  exports.likePost = async (req, res) => {
+    try {
+      const { postId } = req.body;
+  
+      // Increment the likes count for the post
+      const result = await db.query(
+        'UPDATE posts SET likes = likes + 1 WHERE post_id = $1 RETURNING *',
+        [postId]
+      );
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
+  
+      res.status(200).json(result.rows[0]);
+    } catch (err) {
+      console.error('Error liking post:', err.message);
+      res.status(500).send('Server error');
+    }
+  };
+

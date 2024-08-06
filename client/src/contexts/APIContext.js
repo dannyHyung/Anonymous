@@ -40,6 +40,16 @@ export const APIProvider = ({ children }) => {
     }
   }
 
+  const likePost = async (postId) => {
+    try {
+      const response = await axiosInt.post('/likePost', { postId });
+      setRefresh(true);
+      return response;
+    } catch (error) {
+      console.error('Failed to like post', error);
+    }
+  };
+
   const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -58,7 +68,7 @@ export const APIProvider = ({ children }) => {
   };
 
   return (
-    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, refresh, setRefresh, uploadFile }}>
+    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, likePost, refresh, setRefresh, uploadFile }}>
       {children}
     </APIContext.Provider>
   );

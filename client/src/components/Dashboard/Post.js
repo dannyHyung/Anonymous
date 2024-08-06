@@ -5,12 +5,14 @@ import WhatshotIcon from '@mui/icons-material/Whatshot';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import { useAPI } from '../../contexts/APIContext';
 
-function Post({ id, content, image, date, likes, comments, onLike, onComment }) {
+function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
   const { deletePost } = useAPI(); // Assuming deletePost is implemented in the API context
   const [open, setOpen] = useState(false);
+  const [currentLikes, setCurrentLikes] = useState(likes);
 
   const handleLike = async () => {
     await onLike(id);
+    setCurrentLikes(currentLikes + 1);
   };
 
   const handleDeleteClick = () => {
@@ -22,7 +24,8 @@ function Post({ id, content, image, date, likes, comments, onLike, onComment }) 
   };
 
   const handleConfirmDelete = async () => {
-    await deletePost(id);
+    // await deletePost(id);
+    await onDelete(id);
     handleClose();
   };
 
@@ -53,7 +56,7 @@ function Post({ id, content, image, date, likes, comments, onLike, onComment }) 
               <IconButton onClick={handleLike} color="black">
                 <WhatshotIcon />
               </IconButton>
-              <IconButton onClick={() => onComment(id)} color="black">
+              <IconButton onClick={() => console.log('Comment clicked')} color="black">
                 <ChatBubbleIcon />
               </IconButton>
             </Box>
@@ -63,7 +66,7 @@ function Post({ id, content, image, date, likes, comments, onLike, onComment }) 
                   {likes} likes
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {comments} comments
+                  {Object.keys(comments).length} comments
                 </Typography>
               </Box>
               <Typography variant="body2" color="textSecondary">
