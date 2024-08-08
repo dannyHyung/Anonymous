@@ -3,12 +3,14 @@ import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, Dial
 import DeleteIcon from '@mui/icons-material/Delete';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import CommentModal from './CommentModal';
 import { useAPI } from '../../contexts/APIContext';
 
 function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
-  const { deletePost } = useAPI(); // Assuming deletePost is implemented in the API context
-  const [open, setOpen] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openCommentModal, setOpenCommentModal] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(likes);
+  const [currentComments, setCurrentComments] = useState(Array.isArray(comments) ? comments : []);
 
   const handleLike = async () => {
     await onLike(id);
@@ -16,23 +18,34 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
   };
 
   const handleDeleteClick = () => {
-    setOpen(true);
+    setOpenDeleteDialog(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
   };
 
   const handleConfirmDelete = async () => {
-    // await deletePost(id);
     await onDelete(id);
-    handleClose();
+    handleCloseDeleteDialog();
+  };
+
+  const handleCommentClick = () => {
+    setOpenCommentModal(true);
+  };
+
+  const handleCloseCommentModal = () => {
+    setOpenCommentModal(false);
+  };
+
+  const handleCommentAdded = (newComment) => {
+    setCurrentComments([newComment, ...currentComments]);
   };
 
   return (
     <Box sx={{ maxWidth: { xs: 300, sm: 400, md: 600 }, width: '100%', margin: '0 auto', mb: 3 }}>
       <Card sx={{ width: '100%', position: 'relative' }}>
-        <CardContent sx={{ }}>
+        <CardContent sx={{ paddingBottom: '0 !important' }}>
           <IconButton
             aria-label="delete"
             onClick={handleDeleteClick}
@@ -53,20 +66,20 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
           )}
           <Box mt={2}>
             <Box display="flex" alignItems="center">
-              <IconButton onClick={handleLike} color="black">
+              <IconButton onClick={handleLike} color="inherit">
                 <WhatshotIcon />
               </IconButton>
-              <IconButton onClick={() => console.log('Comment clicked')} color="black">
+              <IconButton onClick={handleCommentClick} color="inherit">
                 <ChatBubbleIcon />
               </IconButton>
             </Box>
             <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
               <Box display="flex" alignItems="center">
                 <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
-                  {likes} likes
+                  {currentLikes} likes
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {Object.keys(comments).length} comments
+                  {currentComments.length} comments
                 </Typography>
               </Box>
               <Typography variant="body2" color="textSecondary">
@@ -78,8 +91,8 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
       </Card>
 
       <Dialog
-        open={open}
-        onClose={handleClose}
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
         PaperProps={{
           sx: {
             borderRadius: '16px',
@@ -94,7 +107,7 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleCloseDeleteDialog} color="primary">
             Cancel
           </Button>
           <Button onClick={handleConfirmDelete} color="primary" autoFocus>
@@ -102,6 +115,14 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <CommentModal
+        open={openCommentModal}
+        handleClose={handleCloseCommentModal}
+        postId={id}
+        initialComments={Array.isArray(currentComments) ? currentComments : []}
+        onCommentAdded={handleCommentAdded}
+      />
     </Box>
   );
 }

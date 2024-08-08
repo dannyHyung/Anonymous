@@ -7,7 +7,7 @@ exports.createPost = async (req, res) => {
         console.log('Creating post with content:', content, 'and image:', image);
         const result = await db.query(
             'INSERT INTO posts (content, image, likes, comments, date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [content, image, 0, [], new Date()]
+            [content, image, 0, JSON.stringify([]), new Date()]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -75,6 +75,24 @@ exports.deletePost = async (req, res) => {
       res.status(200).json(result.rows[0]);
     } catch (err) {
       console.error('Error liking post:', err.message);
+      res.status(500).send('Server error');
+    }
+  };
+
+  exports.addComment = async (req, res) => {
+    try {
+      const { postId, text } = req.body;
+      const newComment = {
+        text,
+        date: new Date().toISOString()
+      };
+      const result = await db.query(
+        'UPDATE posts SET comments = comments || $1::jsonb WHERE post_id = $2 RETURNING comments',
+        [JSON.stringify([newComment]), postId]
+      );
+      res.status(201).json(newComment);  // Return the new comment object
+    } catch (err) {
+      console.error('Error adding comment:', err.message);
       res.status(500).send('Server error');
     }
   };

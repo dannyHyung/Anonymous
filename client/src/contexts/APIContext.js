@@ -23,7 +23,7 @@ export const APIProvider = ({ children }) => {
   const createPost = async (content, image) => {
     try {
       const response = await axiosInt.post('/createPost', { content, image });
-      setRefresh(true);
+      // setRefresh(true);
       return response
     } catch (error) {
       console.error('Failed to create post', error);
@@ -33,7 +33,7 @@ export const APIProvider = ({ children }) => {
   const deletePost = async (postId) => {
     try {
       const response = await axiosInt.post('/deletePost', {postId});
-      setRefresh(true);
+      // setRefresh(true);
       return response;
     } catch (error) {
       console.error('Failed to delete post', error);
@@ -43,10 +43,20 @@ export const APIProvider = ({ children }) => {
   const likePost = async (postId) => {
     try {
       const response = await axiosInt.post('/likePost', { postId });
-      setRefresh(true);
+      // setRefresh(true);
       return response;
     } catch (error) {
       console.error('Failed to like post', error);
+    }
+  };
+
+  const addComment = async (postId, text) => {
+    try {
+      const response = await axiosInt.post('/addComment', { postId, text });
+      // setRefresh(true);
+      return response;
+    } catch (error) {
+      console.error('Failed to add comment', error);
     }
   };
 
@@ -68,7 +78,7 @@ export const APIProvider = ({ children }) => {
   };
 
   return (
-    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, likePost, refresh, setRefresh, uploadFile }}>
+    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, likePost, addComment, refresh, setRefresh, uploadFile }}>
       {children}
     </APIContext.Provider>
   );
