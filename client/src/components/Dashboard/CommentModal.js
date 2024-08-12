@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Typography, Box, IconButton } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import CloseIcon from '@mui/icons-material/Close';
 import { useAPI } from '../../contexts/APIContext';
 
 function CommentModal({ open, handleClose, postId, initialComments, onCommentAdded }) {
@@ -27,6 +28,13 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
       <DialogTitle>{"Comments"}</DialogTitle>
       <DialogContent>
         <Box>
+        <IconButton
+            aria-label="cancel"
+            onClick={handleClose}
+            sx={{ position: 'absolute', top: 10, right: 10 }}
+          >
+            <CloseIcon />
+          </IconButton>
           {Object.keys(comments).length === 0 ? (
             <Typography variant="body2" color="textSecondary">
               No comments yet. Be the first to comment!
@@ -57,11 +65,6 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
           </IconButton>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

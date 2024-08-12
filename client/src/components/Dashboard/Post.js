@@ -43,9 +43,9 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
   };
 
   return (
-    <Box sx={{ maxWidth: { xs: 300, sm: 400, md: 600 }, width: '100%', margin: '0 auto', mb: 3 }}>
-      <Card sx={{ width: '100%', position: 'relative' }}>
-        <CardContent sx={{ paddingBottom: '0 !important' }}>
+    <Box sx={{ maxWidth: { xs: 300, sm: 400, md: 600 }, width: '100%', margin: '0 auto', mb: 3, minHeight: '200px' }}>
+      <Card sx={{ width: '100%', position: 'relative', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <CardContent sx={{ flexGrow: 1 }}>
           <IconButton
             aria-label="delete"
             onClick={handleDeleteClick}
@@ -61,33 +61,35 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
               component="img"
               image={image}
               alt="Post"
-              sx={{ maxHeight: '400px', objectFit: 'contain', width: '100%' }}
+              sx={{ maxHeight: '400px', objectFit: 'contain', width: '100%', marginTop: '16px' }}
             />
           )}
-          <Box mt={2}>
+        </CardContent>
+        <Box sx={{ padding: '8px 16px' }}>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
             <Box display="flex" alignItems="center">
-              <IconButton onClick={handleLike} color="inherit">
+              <IconButton onClick={handleLike} color="inherit" sx={{ marginRight: 1 }}>
                 <WhatshotIcon />
               </IconButton>
               <IconButton onClick={handleCommentClick} color="inherit">
                 <ChatBubbleIcon />
               </IconButton>
             </Box>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
-              <Box display="flex" alignItems="center">
-                <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
-                  {currentLikes} likes
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {currentComments.length} comments
-                </Typography>
-              </Box>
+          </Box>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
+            <Box display="flex" alignItems="center">
+              <Typography variant="body2" color="textSecondary" sx={{ marginRight: 1 }}>
+                {currentLikes} likes
+              </Typography>
               <Typography variant="body2" color="textSecondary">
-                Posted on: {new Date(date).toLocaleString()}
+                {currentComments.length} comments
               </Typography>
             </Box>
+            <Typography variant="body2" color="textSecondary">
+              Posted on: {new Date(date).toLocaleString()}
+            </Typography>
           </Box>
-        </CardContent>
+        </Box>
       </Card>
 
       <Dialog
