@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
@@ -68,12 +68,16 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
         <Box sx={{ padding: '8px 16px' }}>
           <Box display="flex" alignItems="center" justifyContent="space-between">
             <Box display="flex" alignItems="center">
+            <Tooltip title="like" arrow placement='top'>
               <IconButton onClick={handleLike} color="inherit" sx={{ marginRight: 1 }}>
                 <WhatshotIcon />
               </IconButton>
+              </Tooltip>
+              <Tooltip title="comment" arrow placement='top'>
               <IconButton onClick={handleCommentClick} color="inherit">
                 <ChatBubbleIcon />
               </IconButton>
+              </Tooltip>
             </Box>
           </Box>
           <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>

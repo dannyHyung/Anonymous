@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Typography, Grid, Paper, Box } from '@mui/material';
+import { Container, Button, Typography, Grid, Paper, Box, Fab, Tooltip } from '@mui/material';
 import PostModal from './PostModal';
 import Post from './Post';
+import AddIcon from '@mui/icons-material/Add';
 import { useAPI } from '../../contexts/APIContext';
 
 function Dashboard() {
@@ -27,8 +28,8 @@ function Dashboard() {
 
     const handlePostCreated = async (content, image) => {
         await createPost(content, image);
-        loadPosts(); 
-        setShowModal(false); 
+        loadPosts();
+        setShowModal(false);
     };
 
     const handleLikePost = async (postId) => {
@@ -42,32 +43,42 @@ function Dashboard() {
     };
 
     return (
-        <Box sx={{ backgroundColor: '#1d1d1d', minHeight: '100vh', padding: '20px 0' }}>
+        <Box sx={{ backgroundColor: '#1d1d1d', minHeight: '100vh', paddingBottom: '50px' }}>
             <Container>
                 <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
                     <Typography variant="h3" style={{ color: '#ecf0f1' }}>Anonymous Community</Typography>
-                    <Button variant="contained" color="primary" onClick={() => setShowModal(true)}>
-                        Post
-                    </Button>
+                    <Box sx={{ position: 'fixed', top: '3%', right: '3%' }}>
+                        <Tooltip title="Post" arrow>
+                            <Fab
+                                color="primary"
+                                aria-label="add"
+                                onClick={() => setShowModal(true)}
+                                sx={{ boxShadow: '0 4px 8px rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.19)' }}
+                            >
+                                <AddIcon />
+                            </Fab>
+                        </Tooltip>
+                    </Box>
                 </header>
                 <Grid container spacing={3}>
                     {posts.map((post) => (
                         <Grid item xs={12} key={post.post_id}>
-                            <Post 
-                                id={post.post_id} 
-                                content={post.content} 
-                                image={post.image} 
-                                date={post.date} 
-                                likes={post.likes} 
-                                comments={post.comments} 
-                                onLike={handleLikePost} 
+                            <Post
+                                id={post.post_id}
+                                content={post.content}
+                                image={post.image}
+                                date={post.date}
+                                likes={post.likes}
+                                comments={post.comments}
+                                onLike={handleLikePost}
                                 onDelete={handleDeletePost}
                             />
                         </Grid>
                     ))}
                 </Grid>
-                {showModal && <PostModal onClose={() => setShowModal(false)} onPostCreated={handlePostCreated} />}
             </Container>
+
+            {showModal && <PostModal onClose={() => setShowModal(false)} onPostCreated={handlePostCreated}/>}
         </Box>
     );
 }
