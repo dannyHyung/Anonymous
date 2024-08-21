@@ -1,4 +1,5 @@
-const db = require('../db');
+// const db = require('../db');
+const db = require('../awsdb');
 const { deleteFile } = require('../s3Service');
 
 exports.createPost = async (req, res) => {
