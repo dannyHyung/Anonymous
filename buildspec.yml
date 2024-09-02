@@ -19,3 +19,4 @@ artifacts:
   files:
     - '**/*'  # Include all files in the artifact
     - '!node_modules/**'  # Exclude node_modules
+  base-directory: client/build # Assuming your frontend output is in client/build
