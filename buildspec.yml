@@ -3,14 +3,18 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo Installing dependencies...
-      - cd client && npm install  # Install dependencies for the frontend
-      - npm install  # Install dependencies for the backend
+      - echo Installing backend dependencies...
+      - npm install
+      - echo Installing frontend dependencies...
+      - cd client
+      - npm install
+      - cd..
   build:
     commands:
-      - echo Building frontend...
-      - cd client && npm run build  # Build the frontend (React)
-      - cd..
+      - echo Build started on `date`
+      - cd client
+      - npm run build
+      - cd ..
   post_build:
     commands:
       - echo Build completed.
