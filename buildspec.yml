@@ -10,8 +10,7 @@ phases:
     commands:
       - echo Building frontend...
       - cd client && npm run build  # Build the frontend (React)
-      - echo Building backend...
-      - npm run build  # Build the backend (Node.js)
+      - cd..
   post_build:
     commands:
       - echo Build completed.
