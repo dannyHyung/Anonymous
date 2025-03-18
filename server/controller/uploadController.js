@@ -1,17 +1,33 @@
 const express = require('express');
 const multer = require('multer');
-const { uploadFile } = require('../s3Service');
+const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
+const { storage } = require('../firebaseConfig');
 
 const router = express.Router();
-const upload = multer(); // Initialize multer for handling multipart/form-data
+const upload = multer({ memory: true }); // Store files in memory
 
-// Define the route for file uploads
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const file = req.file;
-    const result = await uploadFile(file);
-    res.status(200).json({ url: result.Location });
+    
+    if (!file) {
+      return res.status(400).json({ error: 'No file provided' });
+    }
+    
+    const timestamp = Date.now();
+    const fileName = `${timestamp}_${file.originalname}`;
+    const storageRef = ref(storage, `uploads/${fileName}`);
+    
+    const metadata = {
+      contentType: file.mimetype,
+    };
+    
+    const snapshot = await uploadBytes(storageRef, file.buffer, metadata);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    res.status(200).json({ url: downloadURL });
   } catch (error) {
+    console.error('Error uploading file:', error);
     res.status(500).json({ error: 'Failed to upload file' });
   }
 });

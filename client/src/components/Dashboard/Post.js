@@ -68,15 +68,15 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
         <Box sx={{ padding: '8px 16px' }}>
           <Box display="flex" alignItems="center" justifyContent="space-between">
             <Box display="flex" alignItems="center">
-            <Tooltip title="like" arrow placement='top'>
-              <IconButton onClick={handleLike} color="inherit" sx={{ marginRight: 1 }}>
-                <WhatshotIcon />
-              </IconButton>
+              <Tooltip title="like" arrow placement='top'>
+                <IconButton onClick={handleLike} color="inherit" sx={{ marginRight: 1 }}>
+                  <WhatshotIcon />
+                </IconButton>
               </Tooltip>
               <Tooltip title="comment" arrow placement='top'>
-              <IconButton onClick={handleCommentClick} color="inherit">
-                <ChatBubbleIcon />
-              </IconButton>
+                <IconButton onClick={handleCommentClick} color="inherit">
+                  <ChatBubbleIcon />
+                </IconButton>
               </Tooltip>
             </Box>
           </Box>
@@ -90,7 +90,9 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
               </Typography>
             </Box>
             <Typography variant="body2" color="textSecondary">
-              Posted on: {new Date(date).toLocaleString()}
+              Posted on: {date && date.seconds
+                ? new Date(date.seconds * 1000).toLocaleString()
+                : new Date(date).toLocaleString()}
             </Typography>
           </Box>
         </Box>

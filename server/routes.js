@@ -8,6 +8,6 @@ router.get('/getPosts', postController.getPosts);
 router.post('/deletePost', postController.deletePost);
 router.post('/likePost', postController.likePost); 
 router.post('/addComment', postController.addComment);
-router.post('/upload', uploadController);
+router.use(uploadController)
 
 module.exports = router;
