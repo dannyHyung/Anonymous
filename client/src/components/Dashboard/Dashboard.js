@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Typography, Grid, Paper, Box, Fab, Tooltip } from '@mui/material';
+import { Container, Button, Typography, Grid, Box, IconButton, Tooltip, AppBar, Toolbar } from '@mui/material';
 import PostModal from './PostModal';
 import Post from './Post';
-import AddIcon from '@mui/icons-material/Add';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 import { useAPI } from '../../contexts/APIContext';
 
 function Dashboard() {
@@ -44,22 +44,40 @@ function Dashboard() {
 
     return (
         <Box sx={{ backgroundColor: '#1d1d1d', minHeight: '100vh', paddingBottom: '50px' }}>
-            <Container>
-                <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
-                    <Typography variant="h3" style={{ color: '#ecf0f1' }}>Anonymous Community</Typography>
-                    <Box sx={{ position: 'fixed', top: '3%', right: '3%' }}>
-                        <Tooltip title="Post" arrow>
-                            <Fab
-                                color="primary"
-                                aria-label="add"
-                                onClick={() => setShowModal(true)}
-                                sx={{ boxShadow: '0 4px 8px rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.19)' }}
-                            >
-                                <AddIcon />
-                            </Fab>
-                        </Tooltip>
-                    </Box>
-                </header>
+            <Box
+                sx={{
+                    borderBottom: '1px solid #333',
+                    padding: '14px 0',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    position: 'sticky',
+                    top: 0,
+                    backgroundColor: '#1d1d1d',
+                    zIndex: 1100,
+                    width: '100%',
+                }}
+            >
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontFamily: "'Dancing Script', cursive",
+                        fontWeight: 600,
+                        color: '#ffffff',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                            backgroundImage: 'linear-gradient(45deg, #00c6ff, #0072ff, #0039ff, #4700ff, #9100ff)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            textShadow: '0 0 10px rgba(0, 198, 255, 0.3)'
+                        }
+                    }}
+                >
+                    Anonymous
+                </Typography>
+            </Box>
+            <Container sx={{ mt: '2%' }}>
                 <Grid container spacing={3}>
                     {posts.map((post) => (
                         <Grid item xs={12} key={post.post_id}>
@@ -77,8 +95,32 @@ function Dashboard() {
                     ))}
                 </Grid>
             </Container>
+            <Box
+                sx={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '60px',
+                    backgroundColor: '#1d1d1d',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderTop: '1px solid #333',
+                    zIndex: 1000,
+                    boxShadow: '0 -2px 10px rgba(0,0,0,0.2)'
+                }}
+            >
+                <Tooltip title="Create Post" arrow>
+                    <IconButton
+                        onClick={() => setShowModal(true)}
+                    >
+                        <AddBoxIcon sx={{ color: 'white', fontSize: '50px' }} />
+                    </IconButton>
+                </Tooltip>
+            </Box>
 
-            {showModal && <PostModal onClose={() => setShowModal(false)} onPostCreated={handlePostCreated}/>}
+            {showModal && <PostModal onClose={() => setShowModal(false)} onPostCreated={handlePostCreated} />}
         </Box>
     );
 }
