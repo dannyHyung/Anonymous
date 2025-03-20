@@ -18,7 +18,6 @@ function PostModal({ onClose, onPostCreated }) {
         imageUrl = await uploadImage(imageFile);
       } catch (error) {
         console.error('Failed to upload image:', error);
-        // Optionally show an error message to the user
         return;
       }
     }
