@@ -20,9 +20,9 @@ export const APIProvider = ({ children }) => {
     }
   };
 
-  const createPost = async (content, image) => {
+  const createPost = async (content, image, mediaType) => {
     try {
-      const response = await axiosInt.post('/createPost', { content, image });
+      const response = await axiosInt.post('/createPost', { content, image, mediaType });
       // setRefresh(true);
       return response
     } catch (error) {

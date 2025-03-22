@@ -8,12 +8,13 @@ const { storage } = require('../firebaseConfig');
 
 exports.createPost = async (req, res) => {
   try {
-    const { content, image } = req.body;
-    console.log('Creating post with content:', content, 'and image:', image);
+    const { content, image, mediaType } = req.body;
+    console.log('Creating post with content:', content, 'media:', image, 'type:', mediaType);
     
     const postData = {
       content,
       image,
+      mediaType: mediaType || 'image',
       likes: 0,
       comments: [],
       date: new Date()

@@ -26,8 +26,8 @@ function Dashboard() {
         }
     };
 
-    const handlePostCreated = async (content, image) => {
-        await createPost(content, image);
+    const handlePostCreated = async (content, image, mediaType) => {
+        await createPost(content, image, mediaType);
         loadPosts();
         setShowModal(false);
     };
@@ -85,6 +85,7 @@ function Dashboard() {
                                 id={post.post_id}
                                 content={post.content}
                                 image={post.image}
+                                mediaType={post.mediaType || 'image'}
                                 date={post.date}
                                 likes={post.likes}
                                 comments={post.comments}

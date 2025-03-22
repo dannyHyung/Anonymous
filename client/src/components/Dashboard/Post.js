@@ -4,9 +4,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import CommentModal from './CommentModal';
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import { getYoutubeVideoId } from '../../utils/videoUtils'
 import { useAPI } from '../../contexts/APIContext';
 
-function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
+function Post({ id, content, image, mediaType = 'image', date, likes, comments, onLike, onDelete }) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openCommentModal, setOpenCommentModal] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(likes);
@@ -118,7 +119,7 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
             </Typography>
           </Box>
 
-          {image && (
+          {image && mediaType === 'image' && (
             <Box sx={{
               position: 'relative',
               overflow: 'hidden',
@@ -139,6 +140,32 @@ function Post({ id, content, image, date, likes, comments, onLike, onDelete }) {
                   transition: 'transform 0.5s ease',
                   cursor: 'pointer'
                 }}
+              />
+            </Box>
+          )}
+          {image && mediaType === 'video' && (
+            <Box
+              sx={{
+                position: 'relative',
+                paddingTop: '56.25%', // 16:9 aspect ratio
+                marginTop: '16px',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                backgroundColor: 'black'
+              }}
+            >
+              <iframe
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  border: 'none'
+                }}
+                src={`https://www.youtube.com/embed/${getYoutubeVideoId(image)}`}
+                title="YouTube video"
+                allowFullScreen
               />
             </Box>
           )}
