@@ -5,12 +5,22 @@ const {
 } = require('firebase/firestore');
 const { deleteObject, ref } = require('firebase/storage');
 const { storage } = require('../firebaseConfig');
+const {saveExternalImage} = require('../utils/imageUtils')
 
 exports.createPost = async (req, res) => {
   try {
     const { content, image, mediaType } = req.body;
     console.log('Creating post with content:', content, 'media:', image, 'type:', mediaType);
     
+    // Process external image URLs
+    let finalImage = image;
+    
+    if (mediaType === 'image' && image && image.startsWith('http') && 
+        !image.includes('firebasestorage.googleapis.com')) {
+      console.log('Processing external image URL');
+      finalImage = await saveExternalImage(image);
+    }
+
     const postData = {
       content,
       image,
