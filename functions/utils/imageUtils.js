@@ -1,5 +1,4 @@
 const fetch = require('node-fetch');
-const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
 const { storage } = require('../firebaseConfig');
 
 /**
@@ -25,19 +24,23 @@ const saveExternalImage = async (imageUrl) => {
     
     // Generate a unique filename
     const fileExtension = imageUrl.split('.').pop().split('?')[0] || 'jpg';
-    const fileName = `external_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
+    const fileName = `uploads/external_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
     
     // Upload to Firebase Storage
-    const storageRef = ref(storage, `uploads/${fileName}`);
-    const metadata = {
-      contentType: response.headers.get('content-type') || `image/${fileExtension}`
-    };
+    const file = storage.file(fileName);
     
     console.log('Uploading to Firebase Storage');
-    await uploadBytes(storageRef, new Uint8Array(buffer), metadata);
+    await file.save(Buffer.from(buffer), {
+      metadata: {
+        contentType: response.headers.get('content-type') || `image/${fileExtension}`
+      }
+    });
     
-    // Get download URL
-    const downloadURL = await getDownloadURL(storageRef);
+    // Make it publicly accessible
+    await file.makePublic();
+    
+    // Get the public URL
+    const downloadURL = `https://storage.googleapis.com/${storage.name}/${fileName}`;
     console.log('Image saved to Firebase:', downloadURL);
     
     return downloadURL;

@@ -1,11 +1,5 @@
-const { db } = require('../firebaseConfig');
-const { 
-  collection, addDoc, getDocs, doc, deleteDoc, 
-  updateDoc, arrayUnion, query, orderBy, getDoc, increment 
-} = require('firebase/firestore');
-const { deleteObject, ref } = require('firebase/storage');
-const { storage } = require('../firebaseConfig');
-const {saveExternalImage} = require('../utils/imageUtils')
+const { db, storage, admin } = require('../firebaseConfig');
+const { saveExternalImage } = require('../utils/imageUtils');
 
 exports.createPost = async (req, res) => {
   try {
@@ -23,14 +17,15 @@ exports.createPost = async (req, res) => {
 
     const postData = {
       content,
-      image,
+      image: finalImage,
       mediaType: mediaType || 'image',
       likes: 0,
       comments: [],
       date: new Date()
     };
     
-    const docRef = await addDoc(collection(db, 'posts'), postData);
+    // Admin SDK syntax
+    const docRef = await db.collection('posts').add(postData);
     
     res.status(201).json({
       post_id: docRef.id,
@@ -45,11 +40,14 @@ exports.createPost = async (req, res) => {
 exports.getPosts = async (req, res) => {
   try {
     console.log('Fetching posts');
-    const postsQuery = query(collection(db, 'posts'), orderBy('date', 'desc'));
-    const querySnapshot = await getDocs(postsQuery);
+    
+    // Admin SDK query syntax
+    const snapshot = await db.collection('posts').orderBy('date', 'desc').get();
+    
+    console.log('Found documents:', snapshot.size);
     
     const posts = [];
-    querySnapshot.forEach((doc) => {
+    snapshot.forEach(doc => {
       posts.push({
         post_id: doc.id,
         ...doc.data()
@@ -58,7 +56,7 @@ exports.getPosts = async (req, res) => {
     
     res.json(posts);
   } catch (err) {
-    console.error('Error fetching posts:', err.message);
+    console.error('Error fetching posts:', err);
     res.status(500).send('Server error');
   }
 };
@@ -67,22 +65,29 @@ exports.deletePost = async (req, res) => {
   try {
     const { postId } = req.body;
     
-    const postRef = doc(db, 'posts', postId);
-    const postSnap = await getDoc(postRef);
+    // Admin SDK syntax
+    const postRef = db.collection('posts').doc(postId);
+    const postDoc = await postRef.get();
     
-    if (!postSnap.exists()) {
+    if (!postDoc.exists) {
       return res.status(404).json({ error: 'Post not found' });
     }
     
-    const postData = postSnap.data();
-    await deleteDoc(postRef);
+    const postData = postDoc.data();
+    await postRef.delete();
     
+    // Delete image if it exists
     if (postData.image && postData.image.includes('firebase')) {
-      const imageUrl = new URL(postData.image);
-      const imagePath = decodeURIComponent(imageUrl.pathname.split('/o/')[1].split('?')[0]);
-      
-      const imageRef = ref(storage, imagePath);
-      await deleteObject(imageRef);
+      try {
+        const imageUrl = new URL(postData.image);
+        const imagePath = decodeURIComponent(imageUrl.pathname.split('/o/')[1].split('?')[0]);
+        
+        // Admin SDK for storage
+        await storage.file(imagePath).delete();
+      } catch (imgErr) {
+        console.error('Error deleting image:', imgErr);
+        // Continue even if image deletion fails
+      }
     }
     
     res.status(200).json({ message: 'Post deleted successfully' });
@@ -96,22 +101,25 @@ exports.likePost = async (req, res) => {
   try {
     const { postId } = req.body;
     
-    const postRef = doc(db, 'posts', postId);
-    const postSnap = await getDoc(postRef);
+    // Admin SDK syntax
+    const postRef = db.collection('posts').doc(postId);
+    const postDoc = await postRef.get();
     
-    if (!postSnap.exists()) {
+    if (!postDoc.exists) {
       return res.status(404).json({ error: 'Post not found' });
     }
     
-    await updateDoc(postRef, {
-      likes: increment(1)
+    // Increment likes using Admin SDK
+    await postRef.update({
+      likes: admin.firestore.FieldValue.increment(1)
     });
     
-    const updatedPostSnap = await getDoc(postRef);
+    // Get updated doc
+    const updatedDoc = await postRef.get();
     
     res.status(200).json({
-      post_id: updatedPostSnap.id,
-      ...updatedPostSnap.data()
+      post_id: updatedDoc.id,
+      ...updatedDoc.data()
     });
   } catch (err) {
     console.error('Error liking post:', err.message);
@@ -128,9 +136,10 @@ exports.addComment = async (req, res) => {
       date: new Date().toISOString()
     };
     
-    const postRef = doc(db, 'posts', postId);
-    await updateDoc(postRef, {
-      comments: arrayUnion(newComment)
+    // Admin SDK syntax
+    const postRef = db.collection('posts').doc(postId);
+    await postRef.update({
+      comments: admin.firestore.FieldValue.arrayUnion(newComment)
     });
     
     res.status(201).json(newComment);
