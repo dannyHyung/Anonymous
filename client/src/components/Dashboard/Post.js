@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Tooltip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Tooltip, Grid } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import CommentModal from './CommentModal';
@@ -109,10 +109,6 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
                   textDecoration: 'none',
                   '&:hover': { textDecoration: 'underline' }
                 },
-                '&::first-letter': {
-                  fontSize: '1.2em', // Slightly larger first letter
-                  fontWeight: 500
-                }
               }}
             >
               {content}
@@ -174,75 +170,85 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
           padding: '12px 20px 16px',
           borderTop: '1px solid rgba(255,255,255,0.1)'
         }}>
-          <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Box display="flex" alignItems="center">
-              <Tooltip title="Like" arrow placement='top'>
-                <IconButton
-                  onClick={handleLike}
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item>
+              <Box display="flex" alignItems="center">
+                <Tooltip title="Like" arrow placement="top">
+                  <IconButton
+                    onClick={handleLike}
+                    sx={{
+                      mr: 1,
+                      color: '#fff',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        color: '#ff3b30',
+                        transform: 'scale(1.1)'
+                      }
+                    }}
+                  >
+                    <WhatshotIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Comment" arrow placement="top">
+                  <IconButton
+                    onClick={handleCommentClick}
+                    sx={{
+                      color: '#fff',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        color: '#0080ff',
+                        transform: 'scale(1.1)'
+                      }
+                    }}
+                  >
+                    <AddCommentIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Grid>
+          </Grid>
+
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <Typography
+                  variant="body2"
                   sx={{
-                    marginRight: 1,
                     color: '#fff',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      color: '#ff3b30',
-                      transform: 'scale(1.1)'
-                    }
+                    fontWeight: 500
                   }}
                 >
-                  <WhatshotIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Comment" arrow placement='top'>
-                <IconButton
-                  onClick={handleCommentClick}
+                  {currentLikes} likes
+                </Typography>
+                <Typography
+                  variant="body2"
                   sx={{
                     color: '#fff',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      color: '#0080ff',
-                      transform: 'scale(1.1)'
-                    }
+                    fontWeight: 500
                   }}
                 >
-                  <AddCommentIcon />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </Box>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
-            <Box display="flex" alignItems="center">
-              <Typography
-                variant="body2"
-                sx={{
-                  marginRight: 1.5,
-                  color: '#fff',
-                  fontWeight: 500
-                }}
-              >
-                {currentLikes} likes
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: '#fff',
-                  fontWeight: 500
-                }}
-              >
-                {currentComments.length} comments
-              </Typography>
-            </Box>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'rgba(255,255,255,0.6)',
-                fontSize: '0.75rem'
-              }}
-            >
-              Posted on: {date && date.seconds
-                ? new Date(date.seconds * 1000).toLocaleString()
-                : new Date(date).toLocaleString()}
-            </Typography>
-          </Box>
+                  {currentComments.length} comments
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item>
+              <Box display="flex" alignItems="center" mt={1}>
+                <Typography
+                  variant="body2"
+                  noWrap
+                  sx={{
+                    color: 'rgba(255,255,255,0.6)',
+                    fontSize: '0.75rem'
+                  }}
+                >
+                  Posted on:{' '}
+                  {date && date._seconds
+                    ? new Date(date._seconds * 1000).toLocaleString()
+                    : new Date(date).toLocaleString()}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
       </Card>
 
