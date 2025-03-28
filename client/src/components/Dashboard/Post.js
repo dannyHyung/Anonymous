@@ -68,7 +68,7 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
         <CardContent sx={{
           flexGrow: 1,
           padding: '20px',
-          position: 'relative'
+          position: 'relative',
         }}>
           <IconButton
             aria-label="delete"
@@ -90,7 +90,8 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
           </IconButton>
 
           <Box sx={{
-            paddingRight: '40px'
+            paddingRight: '40px',
+            overflowWrap: 'break-word'
           }}>
             <Typography
               variant="body1"
