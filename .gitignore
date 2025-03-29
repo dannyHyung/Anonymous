@@ -27,3 +27,5 @@ node_modules/
 client/build
 .firebase/
 public/
+firebase-debug.log
+firestore-debug.log
