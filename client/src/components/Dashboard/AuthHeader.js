@@ -7,15 +7,15 @@ function AuthHeader() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  
+
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -43,7 +43,7 @@ function AuthHeader() {
     >
       {/* Left empty space */}
       <Box></Box>
-      
+
       {/* Centered title */}
       <Typography
         variant="h4"
@@ -64,14 +64,14 @@ function AuthHeader() {
       >
         Anonymous
       </Typography>
-      
+
       {/* Right content - authentication controls */}
       <Box sx={{ justifySelf: 'flex-end' }}>
         {currentUser ? (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography 
-              sx={{ 
-                color: '#fff', 
+            <Typography
+              sx={{
+                color: '#fff',
                 marginRight: 2,
                 display: { xs: 'none', sm: 'block' }
               }}
@@ -79,10 +79,10 @@ function AuthHeader() {
               Hi, {currentUser.displayName || currentUser.email.split('@')[0]}
             </Typography>
             <IconButton onClick={handleMenu}>
-              <Avatar 
-                src={currentUser.photoURL} 
+              <Avatar
+                src={currentUser.photoURL}
                 alt={currentUser.displayName || currentUser.email.split('@')[0]}
-                sx={{ 
+                sx={{
                   bgcolor: currentUser.photoURL ? 'transparent' : '#0080ff',
                   '&:hover': { boxShadow: '0 0 8px #0080ff' }
                 }}
@@ -94,20 +94,11 @@ function AuthHeader() {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleClose}
-              PaperProps={{
-                sx: {
-                  backgroundColor: '#262626', 
-                  color: '#fff',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-                  border: '1px solid #333'
-                }
-              }}
             >
-              <MenuItem 
+              <MenuItem
                 onClick={handleLogout}
-                sx={{ 
-                  '&:hover': { 
+                sx={{
+                  '&:hover': {
                     backgroundColor: 'rgba(255,255,255,0.08)'
                   }
                 }}
@@ -118,29 +109,46 @@ function AuthHeader() {
           </Box>
         ) : (
           <Box>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               onClick={() => navigate('/login')}
-              sx={{ 
-                color: '#fff', 
-                borderColor: '#0080ff',
-                marginRight: 1,
+              sx={{
+                color: '#fff',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                marginRight: 1.5,
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontWeight: 500,
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  borderColor: '#00b0ff',
-                  backgroundColor: 'rgba(0,128,255,0.1)'
+                  borderColor: '#0080ff',
+                  backgroundColor: 'rgba(0,128,255,0.08)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0,128,255,0.15)'
                 }
               }}
             >
               Login
             </Button>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               onClick={() => navigate('/signup')}
               sx={{
                 background: 'linear-gradient(45deg, #0080ff, #00b0ff)',
+                borderRadius: '8px',
+                padding: '8px 20px',
                 color: '#fff',
+                fontWeight: 500,
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                boxShadow: '0 2px 10px rgba(0,128,255,0.4)',
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  background: 'linear-gradient(45deg, #0070e0, #009fef)'
+                  background: 'linear-gradient(45deg, #0070e0, #009fef)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 15px rgba(0,128,255,0.5)'
                 }
               }}
             >
