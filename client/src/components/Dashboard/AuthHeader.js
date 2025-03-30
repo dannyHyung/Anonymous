@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, Button, Avatar, Menu, MenuItem, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function AuthHeader() {
   const { currentUser, logout } = useAuth();
@@ -73,36 +74,93 @@ function AuthHeader() {
               sx={{
                 color: '#fff',
                 marginRight: 2,
-                display: { xs: 'none', sm: 'block' }
+                display: { xs: 'none', sm: 'block' },
+                fontWeight: 500,
+                fontSize: '0.95rem',
+                fontFamily: "'Inter', 'Roboto', sans-serif",
+                letterSpacing: '0.4px'
               }}
             >
               Hi, {currentUser.displayName || currentUser.email.split('@')[0]}
             </Typography>
-            <IconButton onClick={handleMenu}>
-              <Avatar
-                src={currentUser.photoURL}
-                alt={currentUser.displayName || currentUser.email.split('@')[0]}
-                sx={{
-                  bgcolor: currentUser.photoURL ? 'transparent' : '#0080ff',
-                  '&:hover': { boxShadow: '0 0 8px #0080ff' }
-                }}
-              >
-                {!currentUser.photoURL && (currentUser.displayName?.[0] || currentUser.email?.[0])}
-              </Avatar>
-            </IconButton>
+            <Box
+              sx={{
+                position: 'relative',
+                width: 40,
+                height: 40,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                '&:hover': { boxShadow: '0 0 8px #0080ff' }
+              }}
+              onClick={handleMenu}
+            >
+              {currentUser.photoURL ? (
+                <Avatar src={currentUser.photoURL} />
+              ) : (
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    background: '#0080ff',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: '60%',
+                      height: '60%',
+                      borderRadius: '50%',
+                      background: '#262626',
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleClose}
+              PaperProps={{
+                sx: {
+                  backgroundColor: '#262626',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 25px rgba(0,0,0,0.5)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  minWidth: '100px',
+                  transform: 'translateY(8px)'
+                }
+              }}
+              TransitionProps={{
+                style: {
+                  transition: 'all 0.2s ease'
+                }
+              }}
             >
               <MenuItem
                 onClick={handleLogout}
                 sx={{
+                  borderRadius: '6px',
+                  fontWeight: 500,
+                  fontSize: '0.95rem',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                   '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.08)'
+                    backgroundColor: 'rgba(0, 128, 255, 0.1)',
+                    color: '#0080ff',
+                    transform: 'translateY(-1px)'
                   }
                 }}
               >
+                <LogoutIcon fontSize="small" />
                 Logout
               </MenuItem>
             </Menu>
