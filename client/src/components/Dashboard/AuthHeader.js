@@ -71,57 +71,46 @@ function AuthHeader() {
         {currentUser ? (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography
+              onClick={handleMenu}
               sx={{
                 color: '#fff',
-                marginRight: 2,
-                display: { xs: 'none', sm: 'block' },
+                padding: '8px 16px',
+                borderRadius: '20px',
+                cursor: 'pointer',
                 fontWeight: 500,
                 fontSize: '0.95rem',
                 fontFamily: "'Inter', 'Roboto', sans-serif",
-                letterSpacing: '0.4px'
+                letterSpacing: '0.4px',
+                position: 'relative',
+                transition: 'all 0.3s ease',
+                background: 'linear-gradient(90deg, rgba(0,128,255,0.1), rgba(0,176,255,0.1))',
+                border: '1px solid rgba(255,255,255,0.1)',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '-2px',
+                  left: '-2px',
+                  right: '-2px',
+                  bottom: '-2px',
+                  background: 'linear-gradient(90deg, #0080ff, #00b0ff)',
+                  borderRadius: '22px',
+                  zIndex: -1,
+                  opacity: 0.4,
+                  filter: 'blur(8px)',
+                  transition: 'opacity 0.3s ease, filter 0.3s ease',
+                },
+                '&:hover': {
+                  background: 'linear-gradient(90deg, rgba(0,128,255,0.2), rgba(0,176,255,0.2))',
+                  '&::before': {
+                    opacity: 0.7,
+                    filter: 'blur(12px)',
+                  }
+                }
               }}
             >
               Hi, {currentUser.displayName || currentUser.email.split('@')[0]}
             </Typography>
-            <Box
-              sx={{
-                position: 'relative',
-                width: 40,
-                height: 40,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
-                borderRadius: '50%',
-                overflow: 'hidden',
-                '&:hover': { boxShadow: '0 0 8px #0080ff' }
-              }}
-              onClick={handleMenu}
-            >
-              {currentUser.photoURL ? (
-                <Avatar src={currentUser.photoURL} />
-              ) : (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    background: '#0080ff',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: '60%',
-                      height: '60%',
-                      borderRadius: '50%',
-                      background: '#262626',
-                    }}
-                  />
-                </Box>
-              )}
-            </Box>
+
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
