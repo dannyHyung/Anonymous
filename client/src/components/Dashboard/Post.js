@@ -7,15 +7,27 @@ import AddCommentIcon from '@mui/icons-material/AddComment';
 import { getYoutubeVideoId } from '../../utils/videoUtils'
 import { useAPI } from '../../contexts/APIContext';
 
-function Post({ id, content, image, mediaType = 'image', date, likes, comments, onLike, onDelete }) {
+function Post({ id, content, image, mediaType = 'image', date, likes, comments, onLike, onDelete, isAuthenticated, onAuthNeeded, currentUserId, postUserId }) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openCommentModal, setOpenCommentModal] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(likes);
   const [currentComments, setCurrentComments] = useState(Array.isArray(comments) ? comments : []);
 
+  const checkAuth = () => {
+    if (!isAuthenticated) {
+      onAuthNeeded();
+      return false;
+    }
+    return true;
+  };
+
   const handleLike = async () => {
-    await onLike(id);
-    setCurrentLikes(currentLikes + 1);
+    if (!checkAuth()) return;
+
+    const updatedPost = await onLike(id);
+    if (updatedPost) {
+      setCurrentLikes(updatedPost.likes);
+    }
   };
 
   const handleDeleteClick = () => {
@@ -27,8 +39,12 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
   };
 
   const handleConfirmDelete = async () => {
-    await onDelete(id);
-    handleCloseDeleteDialog();
+    try {
+      await onDelete(id);
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+    }
   };
 
   const handleCommentClick = () => {
@@ -70,24 +86,26 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
           padding: '20px',
           position: 'relative',
         }}>
-          <IconButton
-            aria-label="delete"
-            onClick={handleDeleteClick}
-            sx={{
-              position: 'absolute',
-              top: 10,
-              right: 10,
-              color: '#aaa',
-              zIndex: 10,
-              '&:hover': {
-                color: '#ff5252',
-                transform: 'rotate(90deg)',
-                transition: 'all 0.3s ease'
-              }
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
+          {isAuthenticated && currentUserId === postUserId && (
+            <IconButton
+              aria-label="delete"
+              onClick={handleDeleteClick}
+              sx={{
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                color: '#aaa',
+                zIndex: 10,
+                '&:hover': {
+                  color: '#ff5252',
+                  transform: 'rotate(90deg)',
+                  transition: 'all 0.3s ease'
+                }
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
 
           <Box sx={{
             paddingRight: '40px',
@@ -303,6 +321,8 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
         postId={id}
         initialComments={Array.isArray(currentComments) ? currentComments : []}
         onCommentAdded={handleCommentAdded}
+        isAuthenticated={isAuthenticated}
+        onAuthNeeded={onAuthNeeded}
       />
     </Box>
   );

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, TextField, Typography, Box, IconButton, Avatar } from '@mui/material';
+import { Dialog, DialogContent, TextField, Typography, Box, IconButton, Avatar, Button } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
 import { useAPI } from '../../contexts/APIContext';
 
-function CommentModal({ open, handleClose, postId, initialComments, onCommentAdded }) {
+function CommentModal({ open, handleClose, postId, initialComments, onCommentAdded, isAuthenticated, onAuthNeeded }) {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
 
@@ -16,6 +16,11 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
   }, [initialComments]);
 
   const handleAddComment = async () => {
+    if (!isAuthenticated) {
+      onAuthNeeded();
+      return;
+    }
+
     if (comment.trim()) {
       const newComment = await addComment(postId, comment);
       setComments([newComment.data, ...comments]);
@@ -108,7 +113,7 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
             color: 'rgba(255,255,255,0.5)'
           }}>
             <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
-              No comments yet. Be the first to comment!
+              No comments yet. {isAuthenticated ? 'Be the first to comment!' : 'Log in to be the first to comment!'}
             </Typography>
           </Box>
         ) : (
@@ -130,12 +135,12 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
                   sx={{
                     width: 38,
                     height: 38,
-                    backgroundColor: 'rgba(255,255,255,0.1)', 
+                    backgroundColor: 'rgba(255,255,255,0.1)',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#ffffff', 
+                    color: '#ffffff',
                   }}
                 >
                   <PersonIcon fontSize="small" />
@@ -185,7 +190,8 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
           multiline
           maxRows={4}
           variant="outlined"
-          placeholder="Write a comment..."
+          disabled={isAuthenticated ? false : true}
+          placeholder={isAuthenticated ? "Write a comment..." : "Log in to join the conversation"}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           sx={{
@@ -202,6 +208,17 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
               '&.Mui-focused fieldset': {
                 borderColor: '#0080ff',
               },
+              '&.Mui-disabled': {
+                color: 'rgba(255,255,255,0.5)',
+                backgroundColor: 'rgba(255,255,255,0.02)',
+                '& fieldset': {
+                  borderColor: 'rgba(255,255,255,0.05)',
+                },
+                '& textarea, & input': {
+                  color: 'rgba(255,255,255,0.5)',
+                  WebkitTextFillColor: 'rgba(255,255,255,0.5)', // Fixes Safari
+                }
+              }
             },
             '& .MuiInputBase-input::placeholder': {
               color: 'rgba(255,255,255,0.5)',
