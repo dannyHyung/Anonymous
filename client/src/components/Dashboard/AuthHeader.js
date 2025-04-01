@@ -38,7 +38,6 @@ function AuthHeader() {
         top: 0,
         backgroundColor: '#1d1d1d',
         zIndex: 1100,
-        width: '100%',
         paddingX: '20px'
       }}
     >
@@ -155,53 +154,82 @@ function AuthHeader() {
             </Menu>
           </Box>
         ) : (
-          <Box>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/login')}
-              sx={{
-                color: '#fff',
-                borderColor: 'rgba(255, 255, 255, 0.2)',
-                marginRight: 1.5,
-                borderRadius: '8px',
-                padding: '8px 16px',
-                fontWeight: 500,
-                textTransform: 'none',
-                fontSize: '0.95rem',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  borderColor: '#0080ff',
-                  backgroundColor: 'rgba(0,128,255,0.08)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0,128,255,0.15)'
-                }
-              }}
-            >
-              Login
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => navigate('/signup')}
-              sx={{
-                background: 'linear-gradient(45deg, #0080ff, #00b0ff)',
-                borderRadius: '8px',
-                padding: '8px 20px',
-                color: '#fff',
-                fontWeight: 500,
-                textTransform: 'none',
-                fontSize: '0.95rem',
-                boxShadow: '0 2px 10px rgba(0,128,255,0.4)',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #0070e0, #009fef)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 15px rgba(0,128,255,0.5)'
-                }
-              }}
-            >
-              Sign Up
-            </Button>
-          </Box>
+          <>
+            {/* Desktop view - show both buttons */}
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/login')}
+                sx={{
+                  color: '#fff',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  marginRight: 1.5,
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    borderColor: '#0080ff',
+                    backgroundColor: 'rgba(0,128,255,0.08)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0,128,255,0.15)'
+                  }
+                }}
+              >
+                Login
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => navigate('/signup')}
+                sx={{
+                  background: 'linear-gradient(45deg, #0080ff, #00b0ff)',
+                  borderRadius: '8px',
+                  padding: '8px 20px',
+                  color: '#fff',
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  boxShadow: '0 2px 10px rgba(0,128,255,0.4)',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #0070e0, #009fef)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 15px rgba(0,128,255,0.5)'
+                  }
+                }}
+              >
+                Sign Up
+              </Button>
+            </Box>
+
+            {/* Mobile view - show only one button */}
+            <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+              <Button
+                variant="contained"
+                onClick={() => navigate('/login')}
+                sx={{
+                  background: 'linear-gradient(45deg, #0080ff, #00b0ff)',
+                  borderRadius: '8px',
+                  padding: '8px 20px',
+                  color: '#fff',
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  boxShadow: '0 2px 10px rgba(0,128,255,0.4)',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #0070e0, #009fef)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 15px rgba(0,128,255,0.5)'
+                  }
+                }}
+              >
+                Login
+              </Button>
+            </Box>
+          </>
         )}
       </Box>
     </Box>
