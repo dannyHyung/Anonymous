@@ -10,7 +10,7 @@ import { getYoutubeVideoId } from '../../utils/videoUtils';
 import { useAPI } from '../../contexts/APIContext';
 
 function PostModal({ onClose, onPostCreated }) {
-  const { createPost, uploadImage } = useAPI();
+  const { uploadImage, saveExternalImage } = useAPI();
   const [content, setContent] = useState('');
   const [mediaType, setMediaType] = useState('none');
   const [imageURL, setImageURL] = useState('');
@@ -22,26 +22,26 @@ function PostModal({ onClose, onPostCreated }) {
   // Attachment menu
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  
+
   // Create object URL for file preview
   useEffect(() => {
     if (imageFile) {
       const objectUrl = URL.createObjectURL(imageFile);
       setPreviewURL(objectUrl);
-      
+
       // Clean up on unmount
       return () => URL.revokeObjectURL(objectUrl);
     }
   }, [imageFile]);
-  
+
   const handleAttachClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  
+
   const handleMediaSelect = (type) => {
     setMediaType(type);
     handleClose();
@@ -50,7 +50,7 @@ function PostModal({ onClose, onPostCreated }) {
       setPreviewURL('');
     }
   };
-  
+
   const clearMedia = () => {
     setMediaType('none');
     setImageFile(null);
@@ -59,7 +59,7 @@ function PostModal({ onClose, onPostCreated }) {
     setFileName('');
     setPreviewURL('');
   };
-  
+
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setImageFile(e.target.files[0]);
@@ -69,10 +69,10 @@ function PostModal({ onClose, onPostCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     let finalMediaUrl = '';
     let mediaTypeToSend = '';
-    
+
     if (mediaType === 'image' && imageFile) {
       try {
         finalMediaUrl = await uploadImage(imageFile);
@@ -82,8 +82,13 @@ function PostModal({ onClose, onPostCreated }) {
         return;
       }
     } else if (mediaType === 'imageUrl') {
-      finalMediaUrl = imageURL;
-      mediaTypeToSend = 'image';
+      try {
+        finalMediaUrl = await saveExternalImage(imageURL);
+        mediaTypeToSend = 'image';
+      } catch (error) {
+        console.error('Failed to process image URL:', error);
+        return;
+      }
     } else if (mediaType === 'videoUrl') {
       finalMediaUrl = videoURL;
       mediaTypeToSend = 'video';
@@ -92,11 +97,11 @@ function PostModal({ onClose, onPostCreated }) {
     await onPostCreated(content, finalMediaUrl, mediaTypeToSend);
     onClose();
   };
-  
+
   // Check if we have at least one form of content (text or media)
-  const hasContent = content.trim() || 
-    (mediaType === 'image' && imageFile) || 
-    (mediaType === 'imageUrl' && imageURL.trim()) || 
+  const hasContent = content.trim() ||
+    (mediaType === 'image' && imageFile) ||
+    (mediaType === 'imageUrl' && imageURL.trim()) ||
     (mediaType === 'videoUrl' && videoURL.trim());
 
   return (
@@ -115,18 +120,18 @@ function PostModal({ onClose, onPostCreated }) {
         overflow: 'hidden',
       }}>
         {/* Header */}
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
             borderBottom: '1px solid rgba(255,255,255,0.1)',
             padding: '16px 24px',
           }}
         >
-          <Typography 
-            variant="h6" 
-            sx={{ 
+          <Typography
+            variant="h6"
+            sx={{
               fontWeight: 600,
               color: '#ffffff',
               transition: 'all 0.3s ease',
@@ -142,11 +147,11 @@ function PostModal({ onClose, onPostCreated }) {
           >
             Create a Post
           </Typography>
-          <IconButton 
+          <IconButton
             onClick={onClose}
-            sx={{ 
+            sx={{
               color: 'rgba(255,255,255,0.7)',
-              '&:hover': { 
+              '&:hover': {
                 color: '#fff',
                 transform: 'rotate(90deg)',
                 transition: 'all 0.3s ease'
@@ -156,7 +161,7 @@ function PostModal({ onClose, onPostCreated }) {
             <CloseIcon />
           </IconButton>
         </Box>
-        
+
         {/* Form Content */}
         <Box sx={{ padding: '24px' }}>
           <form onSubmit={handleSubmit}>
@@ -189,32 +194,32 @@ function PostModal({ onClose, onPostCreated }) {
                 },
               }}
               InputProps={{
-                sx: { 
+                sx: {
                   padding: '16px',
                   fontSize: '1rem',
                   fontFamily: "'Inter', 'Roboto', sans-serif",
                 }
               }}
             />
-            
+
             {/* Media Preview Area - shown only when media is selected */}
             {mediaType !== 'none' && (
-              <Box 
-                sx={{ 
+              <Box
+                sx={{
                   mt: 2,
                   mb: 3,
                   position: 'relative',
-                  backgroundColor: 'rgba(255,255,255,0.05)', 
+                  backgroundColor: 'rgba(255,255,255,0.05)',
                   borderRadius: '12px',
                   padding: '16px',
                   border: '1px solid rgba(255,255,255,0.1)'
                 }}
               >
                 <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}>
-                  <IconButton 
-                    size="small" 
-                    onClick={clearMedia} 
-                    sx={{ 
+                  <IconButton
+                    size="small"
+                    onClick={clearMedia}
+                    sx={{
                       backgroundColor: 'rgba(0,0,0,0.4)',
                       transition: 'all 0.2s ease',
                       '&:hover': {
@@ -226,7 +231,7 @@ function PostModal({ onClose, onPostCreated }) {
                     <ClearIcon fontSize="small" sx={{ color: '#fff' }} />
                   </IconButton>
                 </Box>
-                
+
                 {/* Content based on media type */}
                 {mediaType === 'image' && (
                   <Box sx={{ textAlign: 'center' }}>
@@ -237,16 +242,16 @@ function PostModal({ onClose, onPostCreated }) {
                       onChange={handleFileChange}
                       style={{ display: 'none' }}
                     />
-                    
+
                     {previewURL ? (
                       // Image preview
                       <Box sx={{ mb: 2 }}>
-                        <img 
-                          src={previewURL} 
-                          alt="Preview" 
-                          style={{ 
-                            maxWidth: '100%', 
-                            maxHeight: '200px', 
+                        <img
+                          src={previewURL}
+                          alt="Preview"
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '200px',
                             borderRadius: '8px',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                           }}
@@ -257,7 +262,7 @@ function PostModal({ onClose, onPostCreated }) {
                       </Box>
                     ) : (
                       // Upload area
-                      <Box 
+                      <Box
                         onClick={() => document.getElementById('file-input').click()}
                         sx={{
                           border: '2px dashed rgba(255,255,255,0.2)',
@@ -279,13 +284,13 @@ function PostModal({ onClose, onPostCreated }) {
                         </Box>
                       </Box>
                     )}
-                    
+
                     {/* Replace option */}
                     {previewURL && (
-                      <Button 
+                      <Button
                         onClick={() => document.getElementById('file-input').click()}
-                        sx={{ 
-                          mt: 1, 
+                        sx={{
+                          mt: 1,
                           color: 'rgba(255,255,255,0.7)',
                           textTransform: 'none',
                           '&:hover': { color: '#0080ff' }
@@ -296,7 +301,7 @@ function PostModal({ onClose, onPostCreated }) {
                     )}
                   </Box>
                 )}
-                
+
                 {mediaType === 'imageUrl' && (
                   <Box>
                     <TextField
@@ -322,20 +327,20 @@ function PostModal({ onClose, onPostCreated }) {
                         },
                       }}
                     />
-                    
+
                     {/* Image URL preview */}
                     {imageURL && (
-                      <Box 
-                        sx={{ 
+                      <Box
+                        sx={{
                           display: 'flex',
                           justifyContent: 'center',
                           mt: 2,
                           position: 'relative'
                         }}
                       >
-                        <img 
-                          src={imageURL} 
-                          alt="Preview" 
+                        <img
+                          src={imageURL}
+                          alt="Preview"
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0yNCAyNGgtMjR2LTI0aDI0djI0em0tMS0yM2gtMjJ2MjJoMjJ2LTIyem0tMTYuNSAxMmwtMy41LTMuNSA3LTcgOCA4LTEuNSAxLjUtNi41LTYuNS01IDV6Ii8+PC9zdmc+';
@@ -343,9 +348,9 @@ function PostModal({ onClose, onPostCreated }) {
                             e.target.style.height = '80px';
                             e.target.style.opacity = '0.5';
                           }}
-                          style={{ 
-                            maxWidth: '100%', 
-                            maxHeight: '200px', 
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '200px',
                             borderRadius: '8px',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                           }}
@@ -354,7 +359,7 @@ function PostModal({ onClose, onPostCreated }) {
                     )}
                   </Box>
                 )}
-                
+
                 {mediaType === 'videoUrl' && (
                   <Box>
                     <TextField
@@ -380,8 +385,8 @@ function PostModal({ onClose, onPostCreated }) {
                       }}
                     />
                     {videoURL && getYoutubeVideoId(videoURL) && (
-                      <Box 
-                        sx={{ 
+                      <Box
+                        sx={{
                           position: 'relative',
                           paddingTop: '56.25%', // 16:9 aspect ratio
                           borderRadius: '8px',
@@ -408,24 +413,24 @@ function PostModal({ onClose, onPostCreated }) {
                 )}
               </Box>
             )}
-            
+
             {/* Action Bar */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 mt: 2
               }}
             >
               {/* Attachment button */}
-              <IconButton 
+              <IconButton
                 onClick={handleAttachClick}
                 disabled={mediaType !== 'none'}
-                sx={{ 
+                sx={{
                   color: mediaType === 'none' ? '#0080ff' : 'rgba(255,255,255,0.3)',
                   transition: 'all 0.2s ease',
-                  '&:hover': { 
+                  '&:hover': {
                     backgroundColor: 'rgba(0,128,255,0.1)',
                     transform: mediaType === 'none' ? 'scale(1.1)' : 'none'
                   }
@@ -433,7 +438,7 @@ function PostModal({ onClose, onPostCreated }) {
               >
                 <AttachFileIcon />
               </IconButton>
-              
+
               {/* Attachment Menu */}
               <Menu
                 anchorEl={anchorEl}
@@ -453,8 +458,8 @@ function PostModal({ onClose, onPostCreated }) {
                   <ListItemIcon>
                     <ImageIcon sx={{ color: '#0080ff' }} />
                   </ListItemIcon>
-                  <ListItemText 
-                    primary="Upload Image" 
+                  <ListItemText
+                    primary="Upload Image"
                     primaryTypographyProps={{
                       sx: { fontFamily: "'Inter', 'Roboto', sans-serif" }
                     }}
@@ -464,30 +469,30 @@ function PostModal({ onClose, onPostCreated }) {
                   <ListItemIcon>
                     <LinkIcon sx={{ color: '#0080ff' }} />
                   </ListItemIcon>
-                  <ListItemText 
+                  <ListItemText
                     primary="Image URL"
                     primaryTypographyProps={{
                       sx: { fontFamily: "'Inter', 'Roboto', sans-serif" }
-                    }} 
+                    }}
                   />
                 </MenuItem>
                 <MenuItem onClick={() => handleMediaSelect('videoUrl')}>
                   <ListItemIcon>
                     <YouTubeIcon sx={{ color: '#ff0000' }} />
                   </ListItemIcon>
-                  <ListItemText 
-                    primary="YouTube Video" 
+                  <ListItemText
+                    primary="YouTube Video"
                     primaryTypographyProps={{
                       sx: { fontFamily: "'Inter', 'Roboto', sans-serif" }
                     }}
                   />
                 </MenuItem>
               </Menu>
-              
+
               {/* Buttons */}
               <Box display="flex" gap={2}>
-                <Button 
-                  onClick={onClose} 
+                <Button
+                  onClick={onClose}
                   sx={{
                     textTransform: 'none',
                     color: 'rgba(255,255,255,0.7)',
@@ -500,8 +505,8 @@ function PostModal({ onClose, onPostCreated }) {
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={!hasContent}
                   sx={{
                     textTransform: 'none',

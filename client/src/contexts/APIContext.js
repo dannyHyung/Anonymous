@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axiosInt from '../config/axiosConfig';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from '../firebase/config';
 
 // Create a context for the API
 const APIContext = createContext();
@@ -23,7 +25,6 @@ export const APIProvider = ({ children }) => {
   const createPost = async (content, image, mediaType) => {
     try {
       const response = await axiosInt.post('/createPost', { content, image, mediaType });
-      // setRefresh(true);
       return response
     } catch (error) {
       console.error('Failed to create post', error);
@@ -32,8 +33,7 @@ export const APIProvider = ({ children }) => {
 
   const deletePost = async (postId) => {
     try {
-      const response = await axiosInt.post('/deletePost', {postId});
-      // setRefresh(true);
+      const response = await axiosInt.post('/deletePost', { postId });
       return response;
     } catch (error) {
       console.error('Failed to delete post', error);
@@ -43,7 +43,6 @@ export const APIProvider = ({ children }) => {
   const likePost = async (postId) => {
     try {
       const response = await axiosInt.post('/likePost', { postId });
-      // setRefresh(true);
       return response;
     } catch (error) {
       console.error('Failed to like post', error);
@@ -53,7 +52,6 @@ export const APIProvider = ({ children }) => {
   const addComment = async (postId, text) => {
     try {
       const response = await axiosInt.post('/addComment', { postId, text });
-      // setRefresh(true);
       return response;
     } catch (error) {
       console.error('Failed to add comment', error);
@@ -61,24 +59,59 @@ export const APIProvider = ({ children }) => {
   };
 
   const uploadImage = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await axiosInt.post('/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      return response.data.url; // Assuming the backend returns the URL of the uploaded file
+      // Create a unique file path
+      const timestamp = Date.now();
+      const storageRef = ref(storage, `uploads/${timestamp}_${file.name}`);
+
+      // Upload the file directly to Firebase Storage
+      const snapshot = await uploadBytes(storageRef, file);
+      console.log('Uploaded a file!', snapshot);
+
+      // Get the download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      return downloadURL;
     } catch (error) {
       console.error('Error uploading image:', error);
       throw error;
     }
   };
 
+  const saveExternalImage = async (imageUrl) => {
+    try {
+      // Skip if already a Firebase URL
+      if (imageUrl.includes('firebasestorage.googleapis.com')) {
+        return imageUrl;
+      }
+      
+      console.log('Processing external image:', imageUrl);
+      
+      // Fetch the image
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+      
+      // Get the image as a blob
+      const blob = await response.blob();
+      
+      // Create a File object from the blob
+      const fileExtension = imageUrl.split('.').pop().split('?')[0] || 'jpg';
+      const filename = `external_${Date.now()}.${fileExtension}`;
+      const file = new File([blob], filename, { type: blob.type });
+      
+      // Upload using your existing uploadImage function
+      return await uploadImage(file);
+    } catch (error) {
+      console.error('Error processing external image:', error);
+      // Return original URL as fallback
+      return imageUrl;
+    }
+  };
+
   return (
-    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, likePost, addComment, refresh, setRefresh, uploadImage }}>
+    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, likePost, addComment, refresh, setRefresh, uploadImage, saveExternalImage }}>
       {children}
     </APIContext.Provider>
   );
