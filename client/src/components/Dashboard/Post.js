@@ -59,6 +59,16 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
     setCurrentComments([newComment, ...currentComments]);
   };
 
+  const formatDate = (dateValue) => {
+    const d = dateValue && dateValue._seconds
+      ? new Date(dateValue._seconds * 1000)
+      : new Date(dateValue);
+
+    return d.toLocaleDateString() + ', ' +
+      d.getHours().toString().padStart(2, '0') + ':' +
+      d.getMinutes().toString().padStart(2, '0');
+  };
+
   return (
     <Box sx={{
       maxWidth: { xs: 300, sm: 400, md: 600 },
@@ -186,96 +196,98 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
           )}
         </CardContent>
         <Box sx={{
-          padding: '12px 20px 16px',
+          padding: '12px 12px 16px',
           borderTop: '1px solid rgba(255,255,255,0.1)'
         }}>
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid item>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="flex-end" // This aligns children to the bottom of the box
+          >
+            {/* Left section: Icons and counts */}
+            <Box display="flex" alignItems="center" gap={1}>
+              {/* Like button with count */}
               <Box display="flex" alignItems="center">
-                <Tooltip title="Like" arrow placement="top">
-                  <IconButton
-                    onClick={handleLike}
-                    sx={{
-                      mr: 1,
-                      color: '#fff',
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        color: '#ff3b30',
-                        transform: 'scale(1.1)'
-                      }
-                    }}
-                  >
-                    <WhatshotIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Comment" arrow placement="top">
-                  <IconButton
-                    onClick={handleCommentClick}
-                    sx={{
-                      color: '#fff',
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        color: '#0080ff',
-                        transform: 'scale(1.1)'
-                      }
-                    }}
-                  >
-                    <svg
-                      width="30"
-                      height="30"
-                      viewBox="0 0 32 32"
-                      fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M25.784,21.017C26.581,19.467,27,17.741,27,16c0-6.065-4.935-11-11-11S5,9.935,5,16s4.935,11,11,11   c1.742,0,3.468-0.419,5.018-1.215l4.74,1.185C25.838,26.99,25.919,27,26,27c0.262,0,0.518-0.103,0.707-0.293   c0.248-0.249,0.349-0.609,0.263-0.95L25.784,21.017z M23.751,21.127l0.874,3.498l-3.498-0.875   c-0.247-0.061-0.509-0.026-0.731,0.098C19.055,24.602,17.534,25,16,25c-4.963,0-9-4.038-9-9s4.037-9,9-9s9,4.038,9,9   c0,1.534-0.398,3.054-1.151,4.395C23.724,20.618,23.688,20.88,23.751,21.127z" />
-                    </svg>
-                  </IconButton>
-                </Tooltip>
+                <IconButton
+                  onClick={handleLike}
+                  sx={{
+                    p: { xs: 0.5, sm: 0.75 },
+                    color: '#fff',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      color: '#ff3b30',
+                      transform: 'scale(1.1)'
+                    }
+                  }}
+                >
+                  <WhatshotIcon sx={{ fontSize: '28px' }} />
+                </IconButton>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#fff',
+                    fontWeight: 500,
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    top: '1px'
+                  }}
+                >
+                  {currentLikes}
+                </Typography>
               </Box>
-            </Grid>
-          </Grid>
 
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid item>
-              <Box display="flex" alignItems="center" gap={1} mt={1}>
+              {/* Comment button with count */}
+              <Box display="flex" alignItems="center">
+                <IconButton
+                  onClick={handleCommentClick}
+                  sx={{
+                    p: { xs: 0.5, sm: 0.75 },
+                    color: '#fff',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      color: '#0080ff',
+                      transform: 'scale(1.1)'
+                    }
+                  }}
+                >
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 32 32"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M25.784,21.017C26.581,19.467,27,17.741,27,16c0-6.065-4.935-11-11-11S5,9.935,5,16s4.935,11,11,11   c1.742,0,3.468-0.419,5.018-1.215l4.74,1.185C25.838,26.99,25.919,27,26,27c0.262,0,0.518-0.103,0.707-0.293   c0.248-0.249,0.349-0.609,0.263-0.95L25.784,21.017z M23.751,21.127l0.874,3.498l-3.498-0.875   c-0.247-0.061-0.509-0.026-0.731,0.098C19.055,24.602,17.534,25,16,25c-4.963,0-9-4.038-9-9s4.037-9,9-9s9,4.038,9,9   c0,1.534-0.398,3.054-1.151,4.395C23.724,20.618,23.688,20.88,23.751,21.127z" />
+                  </svg>
+                </IconButton>
                 <Typography
                   variant="body2"
                   sx={{
                     color: '#fff',
-                    fontWeight: 500
+                    fontWeight: 500,
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    top: '1px'
                   }}
                 >
-                  {currentLikes} likes
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: '#fff',
-                    fontWeight: 500
-                  }}
-                >
-                  {currentComments.length} comments
+                  {currentComments.length}
                 </Typography>
               </Box>
-            </Grid>
-            <Grid item>
-              <Box display="flex" alignItems="center" mt={1}>
-                <Typography
-                  variant="body2"
-                  noWrap
-                  sx={{
-                    color: 'rgba(255,255,255,0.6)',
-                    fontSize: '0.75rem'
-                  }}
-                >
-                  Posted on:{' '}
-                  {date && date._seconds
-                    ? new Date(date._seconds * 1000).toLocaleString()
-                    : new Date(date).toLocaleString()}
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
+            </Box>
+
+            {/* Right section: Date */}
+            <Typography
+              variant="body2"
+              noWrap
+              sx={{
+                color: 'rgba(255,255,255,0.6)',
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                alignSelf: 'flex-end' // Ensures the date is at the bottom
+              }}
+            >
+              {date && formatDate(date)}
+            </Typography>
+          </Box>
         </Box>
       </Card>
 

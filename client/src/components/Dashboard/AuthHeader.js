@@ -73,17 +73,21 @@ function AuthHeader() {
               onClick={handleMenu}
               sx={{
                 color: '#fff',
-                padding: '8px 16px',
+                padding: { xs: '6px 10px', sm: '8px 16px' }, // Smaller padding on mobile
                 borderRadius: '20px',
                 cursor: 'pointer',
                 fontWeight: 500,
-                fontSize: '0.95rem',
+                fontSize: { xs: '0.85rem', sm: '0.95rem' }, // Smaller font on mobile
                 fontFamily: "'Inter', 'Roboto', sans-serif",
                 letterSpacing: '0.4px',
                 position: 'relative',
                 transition: 'all 0.3s ease',
                 background: 'linear-gradient(90deg, rgba(0,128,255,0.1), rgba(0,176,255,0.1))',
                 border: '1px solid rgba(255,255,255,0.1)',
+                maxWidth: { xs: '150px', sm: 'none' }, // Limit width on mobile
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
                 '&::before': {
                   content: '""',
                   position: 'absolute',
@@ -107,7 +111,9 @@ function AuthHeader() {
                 }
               }}
             >
-              Hi, {currentUser.displayName || currentUser.email.split('@')[0]}
+              Hi, {currentUser.displayName
+                ? currentUser.displayName.split(' ')[0] // Just show first name
+                : currentUser.email.split('@')[0]}
             </Typography>
 
             <Menu
@@ -136,11 +142,12 @@ function AuthHeader() {
                 sx={{
                   borderRadius: '6px',
                   fontWeight: 500,
-                  fontSize: '0.95rem',
+                  fontSize: { xs: '0.85rem', sm: '0.95rem' }, // Smaller font on mobile
+                  padding: { xs: '6px 10px', sm: '8px 12px' }, // Smaller padding on mobile
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: { xs: '6px', sm: '8px' }, // Smaller gap on mobile
                   '&:hover': {
                     backgroundColor: 'rgba(0, 128, 255, 0.1)',
                     color: '#0080ff',
