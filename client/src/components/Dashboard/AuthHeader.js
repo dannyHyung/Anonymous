@@ -148,6 +148,8 @@ function AuthHeader() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: { xs: '6px', sm: '8px' }, // Smaller gap on mobile
+                  height: { xs: '32px', sm: '36px' }, // Explicit height
+                  minHeight: 'unset', // Override Material UI's default min-height
                   '&:hover': {
                     backgroundColor: 'rgba(0, 128, 255, 0.1)',
                     color: '#0080ff',

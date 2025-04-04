@@ -3,6 +3,7 @@ import { Dialog, DialogContent, TextField, Typography, Box, IconButton, Avatar, 
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
+import formatDate from '../../utils/dateFormatter';
 import { useAPI } from '../../contexts/APIContext';
 
 function CommentModal({ open, handleClose, postId, initialComments, onCommentAdded, isAuthenticated, onAuthNeeded }) {
@@ -121,7 +122,7 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
             <Box
               key={index}
               sx={{
-                padding: '16px 24px',
+                padding: '10px 16px',
                 borderBottom: '1px solid rgba(255,255,255,0.05)',
                 transition: 'background-color 0.2s ease',
                 '&:hover': {
@@ -129,7 +130,7 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
                 }
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                 {/* Anonymous profile icon */}
                 <Box
                   sx={{
@@ -152,7 +153,7 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
                     sx={{
                       color: '#fff',
                       fontSize: '0.95rem',
-                      lineHeight: 1.5,
+                      lineHeight: 1.4,
                       wordBreak: 'break-word'
                     }}
                   >
@@ -163,10 +164,10 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
                     sx={{
                       color: 'rgba(255,255,255,0.5)',
                       fontSize: '0.75rem',
-                      marginTop: '8px'
+                      marginTop: '4px'
                     }}
                   >
-                    {new Date(comment.date).toLocaleString()}
+                    {formatDate(comment.date)}
                   </Typography>
                 </Box>
               </Box>
@@ -218,12 +219,18 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
                   color: 'rgba(255,255,255,0.5)',
                   WebkitTextFillColor: 'rgba(255,255,255,0.5)', // Fixes Safari
                 }
-              }
+              },
             },
             '& .MuiInputBase-input::placeholder': {
               color: 'rgba(255,255,255,0.5)',
               opacity: 1,
             },
+          }}
+          inputProps={{
+            style: {
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(255, 255, 255, 0.2) transparent'
+            }
           }}
         />
         <IconButton

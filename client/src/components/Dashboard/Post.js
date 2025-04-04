@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import CommentModal from './CommentModal';
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import formatDate from '../../utils/dateFormatter';
 import { getYoutubeVideoId } from '../../utils/videoUtils'
 import { useAPI } from '../../contexts/APIContext';
 
@@ -57,16 +58,6 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
 
   const handleCommentAdded = (newComment) => {
     setCurrentComments([newComment, ...currentComments]);
-  };
-
-  const formatDate = (dateValue) => {
-    const d = dateValue && dateValue._seconds
-      ? new Date(dateValue._seconds * 1000)
-      : new Date(dateValue);
-
-    return d.toLocaleDateString() + ', ' +
-      d.getHours().toString().padStart(2, '0') + ':' +
-      d.getMinutes().toString().padStart(2, '0');
   };
 
   return (
