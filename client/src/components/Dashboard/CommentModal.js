@@ -192,7 +192,7 @@ function CommentModal({ open, handleClose, postId, initialComments, onCommentAdd
           maxRows={4}
           variant="outlined"
           disabled={isAuthenticated ? false : true}
-          placeholder={isAuthenticated ? "Write a comment..." : "Log in to join the conversation"}
+          placeholder={isAuthenticated ? "Write a comment..." : "Log in first..."}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           sx={{
