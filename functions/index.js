@@ -11,7 +11,10 @@ const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const app = require('./App');
 
-exports.api = onRequest((req, res) => {
+// This ensures all paths are properly forwarded
+exports.api = onRequest({
+  cors: true
+}, (req, res) => {
   logger.info("Request received", { url: req.url });
   return app(req, res);
 });

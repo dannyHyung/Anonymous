@@ -5,8 +5,11 @@ rules_version = '2';
 //    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+    // Anyone can read files (view images/media)
     match /{allPaths=**} {
-      allow read, write: if true;
+      allow read: if true;
+      // Only authenticated users can upload/modify/delete files
+      allow write, update, delete: if request.auth != null;
     }
   }
 }

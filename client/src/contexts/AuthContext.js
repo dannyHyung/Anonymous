@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
   updateProfile,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  connectAuthEmulator
 } from 'firebase/auth';
 import { auth } from '../firebase/config';
 
@@ -30,6 +31,15 @@ export function AuthProvider({ children }) {
 
   function googleSignIn() {
     const provider = new GoogleAuthProvider();
+    
+    // Only connect to emulator in development
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        connectAuthEmulator(auth, 'http://localhost:9099');
+      } catch (error) {
+        console.log('Auth emulator already connected or unavailable');
+      }
+    }
     return signInWithPopup(auth, provider);
   }
 

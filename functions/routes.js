@@ -1,13 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const postController = require('./controller/postController');
-const uploadController = require('./controller/uploadController');
+const { authenticateUser } = require('./middleware/auth');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() }); // Use memoryStorage explicitly
+const { storage } = require('./firebaseConfig');
 
-router.post('/createPost', postController.createPost);
+// Public routes
 router.get('/getPosts', postController.getPosts);
-router.post('/deletePost', postController.deletePost);
-router.post('/likePost', postController.likePost); 
-router.post('/addComment', postController.addComment);
-router.use(uploadController)
+
+// Protected routes
+router.post('/createPost', authenticateUser, postController.createPost);
+router.post('/deletePost', authenticateUser, postController.deletePost);
+router.post('/likePost', authenticateUser, postController.likePost);
+router.post('/addComment', authenticateUser, postController.addComment);
 
 module.exports = router;

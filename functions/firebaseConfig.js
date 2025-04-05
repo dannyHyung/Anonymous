@@ -10,7 +10,7 @@ const storage = admin.storage().bucket(); // Note the bucket() call for storage
 // Connect to emulators if running locally
 if (process.env.NODE_ENV !== 'production') {
   db.settings({
-    host: 'localhost:5000',
+    host: 'localhost:8081',
     ssl: false
   });
 }
