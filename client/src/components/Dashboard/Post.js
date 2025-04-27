@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Tooltip, Grid } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, 
+  DialogActions, DialogContent, DialogContentText, DialogTitle, Button, 
+  MobileStepper } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import SwipeableViews from 'react-swipeable-views'; // Need to install this package
 import CommentModal from './CommentModal';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import formatDate from '../../utils/dateFormatter';
 import { getYoutubeVideoId } from '../../utils/videoUtils'
 import { useAPI } from '../../contexts/APIContext';
 
-function Post({ id, content, image, mediaType = 'image', date, likes, comments, onLike, onDelete, isAuthenticated, onAuthNeeded, currentUserId, postUserId }) {
+function Post({ id, content, image, images = [], mediaType = 'image', date, likes, comments, onLike, onDelete, isAuthenticated, onAuthNeeded, currentUserId, postUserId }) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openCommentModal, setOpenCommentModal] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(likes);
   const [currentComments, setCurrentComments] = useState(Array.isArray(comments) ? comments : []);
+  const [activeStep, setActiveStep] = useState(0);
 
   const checkAuth = () => {
     if (!isAuthenticated) {
@@ -20,6 +26,23 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
       return false;
     }
     return true;
+  };
+
+  // Process images array - use provided images array or create from single image
+  const allImages = images && images.length > 0 ? images : (image ? [image] : []);
+  const maxSteps = allImages.length;
+  
+  // Handle carousel navigation
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleStepChange = (step) => {
+    setActiveStep(step);
   };
 
   const handleLike = async () => {
@@ -58,6 +81,154 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
 
   const handleCommentAdded = (newComment) => {
     setCurrentComments([newComment, ...currentComments]);
+  };
+
+  const renderMediaContent = () => {
+    if (mediaType === 'video') {
+      // Video rendering code remains the same
+      return (
+        <Box
+          sx={{
+            position: 'relative',
+            paddingTop: '56.25%',
+            marginTop: '16px',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            backgroundColor: 'black'
+          }}
+        >
+          <iframe
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              border: 'none'
+            }}
+            src={`https://www.youtube.com/embed/${getYoutubeVideoId(image)}`}
+            title="YouTube video"
+            allowFullScreen
+          />
+        </Box>
+      );
+    }
+    
+    // If we have images to show
+    if (allImages.length > 0) {
+      return (
+        <Box sx={{ 
+          position: 'relative', 
+          overflow: 'hidden', 
+          borderRadius: '8px', 
+          marginTop: '16px',
+          backgroundColor: '#121212',
+        }}>
+          <SwipeableViews
+            axis="x"
+            index={activeStep}
+            onChangeIndex={handleStepChange}
+            enableMouseEvents
+          >
+            {allImages.map((img, index) => (
+              <Box key={index} sx={{ height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  image={img}
+                  alt={`Post image ${index + 1}`}
+                  sx={{
+                    maxHeight: '400px',
+                    maxWidth: '100%',
+                    objectFit: 'contain',
+                    backgroundColor: '#121212',
+                  }}
+                />
+              </Box>
+            ))}
+          </SwipeableViews>
+          
+          {/* Only show navigation if we have multiple images */}
+          {maxSteps > 1 && (
+            <>
+              {/* Navigation arrows */}
+              {activeStep > 0 && (
+                <IconButton
+                  onClick={handleBack}
+                  sx={{ 
+                    position: 'absolute', 
+                    left: 8, 
+                    top: '50%', 
+                    transform: 'translateY(-50%)',
+                    color: '#fff',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
+                  }}
+                >
+                  <KeyboardArrowLeft />
+                </IconButton>
+              )}
+              
+              {activeStep < maxSteps - 1 && (
+                <IconButton
+                  onClick={handleNext}
+                  sx={{ 
+                    position: 'absolute', 
+                    right: 8, 
+                    top: '50%', 
+                    transform: 'translateY(-50%)',
+                    color: '#fff',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
+                  }}
+                >
+                  <KeyboardArrowRight />
+                </IconButton>
+              )}
+              
+              {/* Image counter */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 10,
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  color: '#fff',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem'
+                }}
+              >
+                {activeStep + 1} / {maxSteps}
+              </Box>
+              
+              {/* Dot indicators */}
+              <MobileStepper
+                steps={maxSteps}
+                position="static"
+                activeStep={activeStep}
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  width: '100%',
+                  backgroundColor: 'transparent',
+                  '& .MuiMobileStepper-dot': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                    margin: '0 4px',
+                  },
+                  '& .MuiMobileStepper-dotActive': {
+                    backgroundColor: '#fff',
+                  }
+                }}
+                nextButton={<div />}
+                backButton={<div />}
+              />
+            </>
+          )}
+        </Box>
+      );
+    }
+    
+    return null;
   };
 
   return (
@@ -135,56 +306,7 @@ function Post({ id, content, image, mediaType = 'image', date, likes, comments, 
             </Typography>
           </Box>
 
-          {image && mediaType === 'image' && (
-            <Box sx={{
-              position: 'relative',
-              overflow: 'hidden',
-              borderRadius: '8px',
-              marginTop: '16px',
-              '&:hover img': {
-                transform: 'scale(1.03)',
-              }
-            }}>
-              <CardMedia
-                component="img"
-                image={image}
-                alt="Post"
-                sx={{
-                  maxHeight: '400px',
-                  objectFit: 'contain',
-                  width: '100%',
-                  transition: 'transform 0.5s ease',
-                  cursor: 'pointer'
-                }}
-              />
-            </Box>
-          )}
-          {image && mediaType === 'video' && (
-            <Box
-              sx={{
-                position: 'relative',
-                paddingTop: '56.25%', // 16:9 aspect ratio
-                marginTop: '16px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                backgroundColor: 'black'
-              }}
-            >
-              <iframe
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  border: 'none'
-                }}
-                src={`https://www.youtube.com/embed/${getYoutubeVideoId(image)}`}
-                title="YouTube video"
-                allowFullScreen
-              />
-            </Box>
-          )}
+          {renderMediaContent()}
         </CardContent>
         <Box sx={{
           padding: '12px 12px 16px',

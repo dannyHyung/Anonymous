@@ -33,13 +33,13 @@ function Dashboard() {
         }
     };
 
-    const handlePostCreated = async (content, image, mediaType) => {
+    const handlePostCreated = async (content, images, mediaType) => {
         if (!currentUser) {
             showAuthAlert();
             return;
         }
 
-        await createPost(content, image, mediaType);
+        await createPost(content, images, mediaType);
         loadPosts();
         setShowModal(false);
     };
@@ -101,6 +101,7 @@ function Dashboard() {
                                 id={post.post_id}
                                 content={post.content}
                                 image={post.image}
+                                images={post.images || []} // Add this line
                                 mediaType={post.mediaType || 'image'}
                                 date={post.date}
                                 likes={post.likes}

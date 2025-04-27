@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Box, TextField, Button, Typography, IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Modal, Box, TextField, Button, Typography, IconButton, Menu, MenuItem, ListItemIcon, ListItemText, ImageList, ImageListItem } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ImageIcon from '@mui/icons-material/Image';
@@ -17,22 +17,23 @@ function PostModal({ onClose, onPostCreated }) {
   const [videoURL, setVideoURL] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [fileName, setFileName] = useState('');
-  const [previewURL, setPreviewURL] = useState('');
+  const [imageFiles, setImageFiles] = useState([]); // Changed to array
+  const [previewURLs, setPreviewURLs] = useState([]);
 
   // Attachment menu
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  // Create object URL for file preview
+  // Create object URLs for file previews
   useEffect(() => {
-    if (imageFile) {
-      const objectUrl = URL.createObjectURL(imageFile);
-      setPreviewURL(objectUrl);
+    if (imageFiles.length > 0) {
+      const objectUrls = imageFiles.map(file => URL.createObjectURL(file));
+      setPreviewURLs(objectUrls);
 
       // Clean up on unmount
-      return () => URL.revokeObjectURL(objectUrl);
+      return () => objectUrls.forEach(url => URL.revokeObjectURL(url));
     }
-  }, [imageFile]);
+  }, [imageFiles]);
 
   const handleAttachClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -47,56 +48,105 @@ function PostModal({ onClose, onPostCreated }) {
     handleClose();
     // Clear preview when changing media type
     if (type !== 'image') {
-      setPreviewURL('');
+      setPreviewURLs([]); // Changed to empty array
+      setImageFiles([]); // Also clear image files
     }
   };
 
   const clearMedia = () => {
     setMediaType('none');
-    setImageFile(null);
+    setImageFiles([]);
     setImageURL('');
     setVideoURL('');
-    setFileName('');
-    setPreviewURL('');
+    setPreviewURLs([]);
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-      setFileName(e.target.files[0].name);
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+
+      // Limit to 10 images total
+      const newFiles = [...imageFiles, ...filesArray];
+      if (newFiles.length > 10) {
+        alert("Maximum 10 images allowed. Some images were not added.");
+        const limitedNewFiles = newFiles.slice(0, 10);
+        setImageFiles(limitedNewFiles);
+      } else {
+        setImageFiles(newFiles);
+      }
     }
+  };
+
+  const removeImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewURLs(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let finalMediaUrl = '';
-    let mediaTypeToSend = '';
+    try {
+      if (mediaType === 'imageUrl') {
+        // Single URL upload
+        const savedUrl = await saveExternalImage(imageURL);
+        await onPostCreated(content, [savedUrl], 'image'); // Pass as array for consistency
+      } else if (mediaType === 'videoUrl') {
+        // Video URL
+        await onPostCreated(content, videoURL, 'video');
+      } else if (mediaType === 'image' && imageFiles.length > 0) {
+        // Multiple image files
+        await onPostCreated(content, imageFiles, 'image');
+      } else {
+        // Text-only post
+        await onPostCreated(content, [], 'none');
+      }
 
-    if (mediaType === 'image' && imageFile) {
-      try {
-        finalMediaUrl = await uploadImage(imageFile);
-        mediaTypeToSend = 'image';
-      } catch (error) {
-        console.error('Failed to upload image:', error);
-        return;
-      }
-    } else if (mediaType === 'imageUrl') {
-      try {
-        finalMediaUrl = await saveExternalImage(imageURL);
-        mediaTypeToSend = 'image';
-      } catch (error) {
-        console.error('Failed to process image URL:', error);
-        return;
-      }
-    } else if (mediaType === 'videoUrl') {
-      finalMediaUrl = videoURL;
-      mediaTypeToSend = 'video';
+      onClose();
+    } catch (error) {
+      console.error('Failed to create post:', error);
     }
-
-    await onPostCreated(content, finalMediaUrl, mediaTypeToSend);
-    onClose();
   };
+
+  const renderImagePreviews = () => (
+    <Box sx={{ mb: 2 }}>
+      <ImageList sx={{ width: '100%', maxHeight: 300 }} cols={3} rowHeight={100}>
+        {previewURLs.map((url, index) => (
+          <ImageListItem key={index} sx={{ position: 'relative' }}>
+            <img
+              src={url}
+              alt={`Preview ${index + 1}`}
+              loading="lazy"
+              style={{
+                height: '100px',
+                width: '100%',
+                objectFit: 'cover',
+                borderRadius: '8px'
+              }}
+            />
+            <IconButton
+              size="small"
+              onClick={() => removeImage(index)}
+              sx={{
+                position: 'absolute',
+                top: 4,
+                right: 4,
+                backgroundColor: 'rgba(0,0,0,0.4)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255,0,0,0.2)',
+                },
+                padding: '2px'
+              }}
+            >
+              <ClearIcon fontSize="small" sx={{ color: '#fff' }} />
+            </IconButton>
+          </ImageListItem>
+        ))}
+      </ImageList>
+      <Typography sx={{ mt: 1, color: '#0080ff', fontWeight: 500 }}>
+        {imageFiles.length} {imageFiles.length === 1 ? 'image' : 'images'} selected ({imageFiles.length}/10)
+      </Typography>
+    </Box>
+  );
 
   // Check if we have at least one form of content (text or media)
   const hasContent = content.trim() ||
@@ -239,65 +289,36 @@ function PostModal({ onClose, onPostCreated }) {
                       id="file-input"
                       type="file"
                       accept="image/*"
+                      multiple
                       onChange={handleFileChange}
                       style={{ display: 'none' }}
                     />
 
-                    {previewURL ? (
-                      // Image preview
-                      <Box sx={{ mb: 2 }}>
-                        <img
-                          src={previewURL}
-                          alt="Preview"
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '200px',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-                          }}
-                        />
-                        <Typography sx={{ mt: 1, color: '#0080ff', fontWeight: 500 }}>
-                          {fileName}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      // Upload area
+                    {previewURLs.length > 0 && renderImagePreviews()}
+
+                    {previewURLs.length < 10 && (
                       <Box
                         onClick={() => document.getElementById('file-input').click()}
                         sx={{
                           border: '2px dashed rgba(255,255,255,0.2)',
                           borderRadius: '8px',
-                          padding: '30px 20px',
+                          padding: previewURLs.length > 0 ? '15px' : '30px 20px',
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
                           '&:hover': {
                             borderColor: '#0080ff',
                             backgroundColor: 'rgba(0,128,255,0.05)',
-                          }
+                          },
+                          textAlign: 'center'
                         }}
                       >
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <ImageIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.5)', mb: 1 }} />
+                          <ImageIcon sx={{ fontSize: previewURLs.length > 0 ? 30 : 40, color: 'rgba(255,255,255,0.5)', mb: 1 }} />
                           <Typography sx={{ color: 'rgba(255,255,255,0.5)' }}>
-                            Click to select an image
+                            {previewURLs.length > 0 ? 'Click to add more images' : 'Click to select up to 10 images'}
                           </Typography>
                         </Box>
                       </Box>
-                    )}
-
-                    {/* Replace option */}
-                    {previewURL && (
-                      <Button
-                        onClick={() => document.getElementById('file-input').click()}
-                        sx={{
-                          mt: 1,
-                          color: 'rgba(255,255,255,0.7)',
-                          textTransform: 'none',
-                          '&:hover': { color: '#0080ff' }
-                        }}
-                      >
-                        Choose a different image
-                      </Button>
                     )}
                   </Box>
                 )}

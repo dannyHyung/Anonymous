@@ -3,11 +3,16 @@ const { saveExternalImage } = require('../utils/imageUtils');
 
 exports.createPost = async (req, res) => {
   try {
-    const { content, image, mediaType } = req.body;
-    console.log('Creating post with content:', content, 'media:', image, 'type:', mediaType);
+    const { content, image, images, mediaType } = req.body;
+    console.log('Creating post with content:', content, 'main image:', image, 'all images:', images, 'type:', mediaType);
+    
+    // Use images array if provided, otherwise create array from single image
+    const imageArray = images || (image ? [image] : []);
+    
     const postData = {
       content,
-      image,
+      image, // Keep for backward compatibility
+      images: imageArray, // Store all images
       mediaType: mediaType || 'image',
       likes: 0,
       likedBy: [],
@@ -76,17 +81,21 @@ exports.deletePost = async (req, res) => {
 
     await postRef.delete();
 
-    // Delete image if it exists
-    if (postData.image && postData.image.includes('firebase')) {
-      try {
-        const imageUrl = new URL(postData.image);
-        const imagePath = decodeURIComponent(imageUrl.pathname.split('/o/')[1].split('?')[0]);
+    // Delete all images
+    const imageUrls = postData.images || (postData.image ? [postData.image] : []);
+    
+    for (const imageUrl of imageUrls) {
+      if (imageUrl && imageUrl.includes('firebase')) {
+        try {
+          const url = new URL(imageUrl);
+          const imagePath = decodeURIComponent(url.pathname.split('/o/')[1].split('?')[0]);
 
-        // Admin SDK for storage
-        await storage.file(imagePath).delete();
-      } catch (imgErr) {
-        console.error('Error deleting image:', imgErr);
-        // Continue even if image deletion fails
+          // Admin SDK for storage
+          await storage.file(imagePath).delete();
+        } catch (imgErr) {
+          console.error('Error deleting image:', imgErr);
+          // Continue even if image deletion fails
+        }
       }
     }
 

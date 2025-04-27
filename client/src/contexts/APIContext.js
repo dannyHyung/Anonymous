@@ -22,12 +22,45 @@ export const APIProvider = ({ children }) => {
     }
   };
 
-  const createPost = async (content, image, mediaType) => {
+  const createPost = async (content, images, mediaType) => {
     try {
-      const response = await axiosInt.post('/createPost', { content, image, mediaType });
-      return response
+      let imageUrls = [];
+      
+      if (mediaType === 'image') {
+        if (Array.isArray(images) && images.length > 0) {
+          // Check if the array contains file objects or URLs
+          if (typeof images[0] === 'string') {
+            // Handle array of URLs (from imageUrl input)
+            imageUrls = images;
+          } else {
+            // Handle array of files (from multiple file upload)
+            imageUrls = await uploadMultipleImages(images);
+          }
+        } else if (images) {
+          // Handle legacy single image case
+          const url = typeof images === 'string' ? images : await uploadImage(images);
+          imageUrls = [url];
+        }
+      } else if (mediaType === 'video') {
+        // For video, it's still a single URL
+        imageUrls = typeof images === 'string' ? [images] : images;
+      }
+      
+      // For backward compatibility, use the first image as the main image
+      const mainImage = imageUrls.length > 0 ? imageUrls[0] : null;
+      
+      // Send to backend
+      const response = await axiosInt.post('/createPost', { 
+        content, 
+        image: mainImage, // For backward compatibility
+        images: imageUrls,
+        mediaType 
+      });
+      
+      return response;
     } catch (error) {
-      console.error('Failed to create post', error);
+      console.error('Failed to create post:', error);
+      throw error;
     }
   };
 
@@ -78,6 +111,20 @@ export const APIProvider = ({ children }) => {
     }
   };
 
+  const uploadMultipleImages = async (files) => {
+    try {
+      // Upload multiple files in parallel and return array of URLs
+      const uploadPromises = Array.isArray(files) 
+        ? files.map(file => uploadImage(file))
+        : [uploadImage(files)];
+      
+      return Promise.all(uploadPromises);
+    } catch (error) {
+      console.error('Error uploading multiple images:', error);
+      throw error;
+    }
+  };
+
   const saveExternalImage = async (imageUrl) => {
     try {
       // Skip if already a Firebase URL
@@ -111,7 +158,7 @@ export const APIProvider = ({ children }) => {
   };
 
   return (
-    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, likePost, addComment, refresh, setRefresh, uploadImage, saveExternalImage }}>
+    <APIContext.Provider value={{ fetchPosts, createPost, deletePost, likePost, addComment, refresh, setRefresh, uploadImage, uploadMultipleImages, saveExternalImage }}>
       {children}
     </APIContext.Provider>
   );
