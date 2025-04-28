@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Box, TextField, Button, Typography, IconButton, Menu, MenuItem, ListItemIcon, ListItemText, ImageList, ImageListItem } from '@mui/material';
+import { Modal, Box, TextField, Button, Typography, IconButton, Menu, MenuItem, ListItemIcon, ListItemText, ImageList, ImageListItem, CircularProgress, Backdrop } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ImageIcon from '@mui/icons-material/Image';
@@ -16,9 +16,9 @@ function PostModal({ onClose, onPostCreated }) {
   const [imageURL, setImageURL] = useState('');
   const [videoURL, setVideoURL] = useState('');
   const [imageFile, setImageFile] = useState(null);
-  const [fileName, setFileName] = useState('');
   const [imageFiles, setImageFiles] = useState([]); // Changed to array
   const [previewURLs, setPreviewURLs] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Attachment menu
   const [anchorEl, setAnchorEl] = useState(null);
@@ -84,6 +84,7 @@ function PostModal({ onClose, onPostCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Start loading
 
     try {
       if (mediaType === 'imageUrl') {
@@ -104,6 +105,7 @@ function PostModal({ onClose, onPostCreated }) {
       onClose();
     } catch (error) {
       console.error('Failed to create post:', error);
+      setIsLoading(false); // Stop loading on error
     }
   };
 
@@ -150,7 +152,7 @@ function PostModal({ onClose, onPostCreated }) {
 
   // Check if we have at least one form of content (text or media)
   const hasContent = content.trim() ||
-    (mediaType === 'image' && imageFile) ||
+    (mediaType === 'image' && imageFiles.length > 0) ||
     (mediaType === 'imageUrl' && imageURL.trim()) ||
     (mediaType === 'videoUrl' && videoURL.trim());
 
@@ -208,7 +210,7 @@ function PostModal({ onClose, onPostCreated }) {
               }
             }}
           >
-            <CloseIcon />
+            <CloseIcon /> 
           </IconButton>
         </Box>
 
@@ -457,7 +459,7 @@ function PostModal({ onClose, onPostCreated }) {
                   }
                 }}
               >
-                <AttachFileIcon />
+                <AttachFileIcon /> 
               </IconButton>
 
               {/* Attachment Menu */}
@@ -514,6 +516,7 @@ function PostModal({ onClose, onPostCreated }) {
               <Box display="flex" gap={2}>
                 <Button
                   onClick={onClose}
+                  disabled={isLoading}
                   sx={{
                     textTransform: 'none',
                     color: 'rgba(255,255,255,0.7)',
@@ -528,7 +531,7 @@ function PostModal({ onClose, onPostCreated }) {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!hasContent}
+                  disabled={!hasContent || isLoading}
                   sx={{
                     textTransform: 'none',
                     background: 'linear-gradient(45deg, #00c6ff, #0072ff)',
@@ -549,9 +552,36 @@ function PostModal({ onClose, onPostCreated }) {
                     }
                   }}
                 >
-                  Post
+                  {isLoading ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                      Posting...
+                    </Box>
+                  ) : (
+                    'Post'
+                  )}
                 </Button>
               </Box>
+              {/* Add a loading overlay */}
+              <Backdrop
+                sx={{
+                  position: 'absolute',
+                  color: '#fff',
+                  zIndex: (theme) => theme.zIndex.drawer + 1,
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2
+                }}
+                open={isLoading}
+              >
+                <CircularProgress color="primary" />
+                <Typography variant="body1">
+                  {mediaType === 'image' && imageFiles.length > 0
+                    ? `Uploading ${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''}...`
+                    : 'Creating your post...'}
+                </Typography>
+              </Backdrop>
             </Box>
           </form>
         </Box>

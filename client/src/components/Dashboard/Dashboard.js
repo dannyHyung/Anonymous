@@ -35,14 +35,25 @@ function Dashboard() {
 
     const handlePostCreated = async (content, images, mediaType) => {
         if (!currentUser) {
-            showAuthAlert();
-            return;
+          showAuthAlert();
+          return false;
         }
-
-        await createPost(content, images, mediaType);
-        loadPosts();
-        setShowModal(false);
-    };
+      
+        try {
+          await createPost(content, images, mediaType);
+          await loadPosts(); // Use await to make sure posts are loaded
+          setShowModal(false); // Only close the modal after successful post creation
+          return true; // Return success
+        } catch (error) {
+          console.error('Failed to create post:', error);
+          setAlert({
+            open: true,
+            message: 'Failed to create post. Please try again.',
+            severity: 'error'
+          });
+          return false; // Return failure
+        }
+      };
 
     const handleLikePost = async (postId) => {
         try {
@@ -93,15 +104,20 @@ function Dashboard() {
         <Box sx={{ backgroundColor: '#1d1d1d', minHeight: '100vh', paddingBottom: '50px' }}>
             <AuthHeader />
 
-            <Container sx={{ mt: '2%' }}>
-                <Grid container spacing={3}>
+            <Container
+                sx={{
+                    mt: '2%',
+                    px: { xs: 1, sm: 2, md: 3 } // Reduce padding on small screens
+                }}
+            >
+                <Grid container spacing={{ xs: 1, sm: 2, md: 3 }}> {/* Adjust spacing based on screen size */}
                     {posts.map((post) => (
                         <Grid item xs={12} key={post.post_id}>
                             <Post
                                 id={post.post_id}
                                 content={post.content}
                                 image={post.image}
-                                images={post.images || []} // Add this line
+                                images={post.images || []}
                                 mediaType={post.mediaType || 'image'}
                                 date={post.date}
                                 likes={post.likes}
@@ -124,7 +140,7 @@ function Dashboard() {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: '60px',
+                    height: { xs: '50px', sm: '60px' }, // Smaller height on mobile
                     backgroundColor: '#1d1d1d',
                     display: 'flex',
                     justifyContent: 'center',
@@ -136,11 +152,13 @@ function Dashboard() {
             >
                 <Tooltip title="Create Post" arrow>
                     <IconButton onClick={handleAddPostClick}>
-                        <AddBoxIcon sx={{ color: 'white', fontSize: '50px' }} />
+                        <AddBoxIcon sx={{
+                            color: 'white',
+                            fontSize: { xs: '40px', sm: '50px' } // Smaller icon on mobile
+                        }} />
                     </IconButton>
                 </Tooltip>
             </Box>
-
             {showModal && <PostModal onClose={() => setShowModal(false)} onPostCreated={handlePostCreated} />}
 
             <Snackbar

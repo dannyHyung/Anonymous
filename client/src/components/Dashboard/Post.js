@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog, 
-  DialogActions, DialogContent, DialogContentText, DialogTitle, Button, 
-  MobileStepper } from '@mui/material';
+import {
+  Card, CardContent, CardMedia, Typography, Box, IconButton, Dialog,
+  DialogActions, DialogContent, DialogContentText, DialogTitle, Button,
+  MobileStepper
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -31,7 +33,7 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
   // Process images array - use provided images array or create from single image
   const allImages = images && images.length > 0 ? images : (image ? [image] : []);
   const maxSteps = allImages.length;
-  
+
   // Handle carousel navigation
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -113,14 +115,14 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
         </Box>
       );
     }
-    
+
     // If we have images to show
     if (allImages.length > 0) {
       return (
-        <Box sx={{ 
-          position: 'relative', 
-          overflow: 'hidden', 
-          borderRadius: '8px', 
+        <Box sx={{
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: '8px',
           marginTop: '16px',
           backgroundColor: '#121212',
         }}>
@@ -146,7 +148,7 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
               </Box>
             ))}
           </SwipeableViews>
-          
+
           {/* Only show navigation if we have multiple images */}
           {maxSteps > 1 && (
             <>
@@ -154,10 +156,10 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
               {activeStep > 0 && (
                 <IconButton
                   onClick={handleBack}
-                  sx={{ 
-                    position: 'absolute', 
-                    left: 8, 
-                    top: '50%', 
+                  sx={{
+                    position: 'absolute',
+                    left: 8,
+                    top: '50%',
                     transform: 'translateY(-50%)',
                     color: '#fff',
                     backgroundColor: 'rgba(0, 0, 0, 0.3)',
@@ -167,14 +169,14 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
                   <KeyboardArrowLeft />
                 </IconButton>
               )}
-              
+
               {activeStep < maxSteps - 1 && (
                 <IconButton
                   onClick={handleNext}
-                  sx={{ 
-                    position: 'absolute', 
-                    right: 8, 
-                    top: '50%', 
+                  sx={{
+                    position: 'absolute',
+                    right: 8,
+                    top: '50%',
                     transform: 'translateY(-50%)',
                     color: '#fff',
                     backgroundColor: 'rgba(0, 0, 0, 0.3)',
@@ -184,7 +186,7 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
                   <KeyboardArrowRight />
                 </IconButton>
               )}
-              
+
               {/* Image counter */}
               <Box
                 sx={{
@@ -200,7 +202,7 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
               >
                 {activeStep + 1} / {maxSteps}
               </Box>
-              
+
               {/* Dot indicators */}
               <MobileStepper
                 steps={maxSteps}
@@ -227,35 +229,35 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
         </Box>
       );
     }
-    
+
     return null;
   };
 
   return (
     <Box sx={{
-      maxWidth: { xs: 300, sm: 400, md: 600 },
+      maxWidth: { xs: '100%', sm: 400, md: 600 }, // Full width on mobile
       width: '100%',
       margin: '0 auto',
-      mb: 3,
-      minHeight: '200px',
+      mb: { xs: 2, sm: 3 }, // Less margin on mobile
+      minHeight: { xs: '180px', sm: '200px' }, // Smaller minimum height on mobile
       transition: 'transform 0.3s ease',
     }}>
       <Card sx={{
         width: '100%',
         position: 'relative',
-        minHeight: '200px',
+        minHeight: { xs: '180px', sm: '200px' }, // Smaller minimum height on mobile
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         backgroundColor: '#262626',
-        borderRadius: '12px',
+        borderRadius: { xs: '8px', sm: '12px' }, // Smaller radius on mobile
         boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
         overflow: 'hidden',
         border: '1px solid #333'
       }}>
         <CardContent sx={{
           flexGrow: 1,
-          padding: '20px',
+          padding: { xs: '15px', sm: '20px' }, // Less padding on mobile
           position: 'relative',
         }}>
           {isAuthenticated && currentUserId === postUserId && (
@@ -287,12 +289,12 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
               variant="body1"
               sx={{
                 color: '#fff',
-                fontSize: { xs: '0.95rem', sm: '1rem', md: '1.05rem' },
-                lineHeight: 1.7,
+                fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1.05rem' }, // Smaller font on mobile
+                lineHeight: { xs: 1.5, sm: 1.7 }, // Tighter line height on mobile
                 letterSpacing: '0.01em',
                 fontFamily: "'Inter', 'Roboto', sans-serif",
                 fontWeight: 400,
-                marginBottom: '16px',
+                marginBottom: { xs: '12px', sm: '16px' }, // Less margin on mobile
                 textShadow: '0 1px 1px rgba(0,0,0,0.3)',
                 '& strong': { fontWeight: 600, color: '#e0e0e0' },
                 '& a': {
@@ -309,22 +311,22 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
           {renderMediaContent()}
         </CardContent>
         <Box sx={{
-          padding: '12px 12px 16px',
+          padding: { xs: '8px 8px 12px', sm: '12px 12px 16px' }, // Less padding on mobile
           borderTop: '1px solid rgba(255,255,255,0.1)'
         }}>
           <Box
             display="flex"
             justifyContent="space-between"
-            alignItems="flex-end" // This aligns children to the bottom of the box
+            alignItems="flex-end"
           >
             {/* Left section: Icons and counts */}
-            <Box display="flex" alignItems="center" gap={1}>
+            <Box display="flex" alignItems="center" gap={{ xs: 0.5, sm: 1 }}> {/* Reduced gap on mobile */}
               {/* Like button with count */}
               <Box display="flex" alignItems="center">
                 <IconButton
                   onClick={handleLike}
                   sx={{
-                    p: { xs: 0.5, sm: 0.75 },
+                    p: { xs: 0.3, sm: 0.5, md: 0.75 }, // Less padding on mobile
                     color: '#fff',
                     transition: 'all 0.2s ease',
                     '&:hover': {
@@ -333,14 +335,14 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
                     }
                   }}
                 >
-                  <WhatshotIcon sx={{ fontSize: '28px' }} />
+                  <WhatshotIcon sx={{ fontSize: { xs: '22px', sm: '28px' } }} /> {/* Smaller on mobile */}
                 </IconButton>
                 <Typography
                   variant="body2"
                   sx={{
                     color: '#fff',
                     fontWeight: 500,
-                    fontSize: '0.95rem',
+                    fontSize: { xs: '0.85rem', sm: '0.95rem' }, // Smaller font on mobile
                     position: 'relative',
                     top: '1px'
                   }}
@@ -354,7 +356,7 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
                 <IconButton
                   onClick={handleCommentClick}
                   sx={{
-                    p: { xs: 0.5, sm: 0.75 },
+                    p: { xs: 0.3, sm: 0.5, md: 0.75 }, // Less padding on mobile
                     color: '#fff',
                     transition: 'all 0.2s ease',
                     '&:hover': {
@@ -364,8 +366,8 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
                   }}
                 >
                   <svg
-                    width="28"
-                    height="28"
+                    width={window.innerWidth < 600 ? "22" : "28"} // Dynamic SVG sizing
+                    height={window.innerWidth < 600 ? "22" : "28"}
                     viewBox="0 0 32 32"
                     fill="currentColor"
                     xmlns="http://www.w3.org/2000/svg"
@@ -378,7 +380,7 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
                   sx={{
                     color: '#fff',
                     fontWeight: 500,
-                    fontSize: '0.95rem',
+                    fontSize: { xs: '0.85rem', sm: '0.95rem' }, // Smaller font on mobile
                     position: 'relative',
                     top: '1px'
                   }}
@@ -394,8 +396,9 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
               noWrap
               sx={{
                 color: 'rgba(255,255,255,0.6)',
-                fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                alignSelf: 'flex-end' // Ensures the date is at the bottom
+                fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, // Smaller on mobile
+                alignSelf: 'flex-end',
+                ml: { xs: 1, sm: 2 } // Ensure some margin from the buttons
               }}
             >
               {date && formatDate(date)}
