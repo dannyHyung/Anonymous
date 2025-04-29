@@ -106,8 +106,8 @@ function Dashboard() {
 
             <Container
                 sx={{
-                    mt: '2%',
-                    px: { xs: 1, sm: 2, md: 3 } // Reduce padding on small screens
+                    mt: { xs: "4%", sm: "3%", md: "2%" },
+                    px: { xs: 2, sm: 2, md: 3 } // Reduce padding on small screens
                 }}
             >
                 <Grid container spacing={{ xs: 1, sm: 2, md: 3 }}> {/* Adjust spacing based on screen size */}

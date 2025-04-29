@@ -238,7 +238,7 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
       maxWidth: { xs: '100%', sm: 400, md: 600 }, // Full width on mobile
       width: '100%',
       margin: '0 auto',
-      mb: { xs: 2, sm: 3 }, // Less margin on mobile
+      mb: 3, // 
       minHeight: { xs: '180px', sm: '200px' }, // Smaller minimum height on mobile
       transition: 'transform 0.3s ease',
     }}>
@@ -289,8 +289,8 @@ function Post({ id, content, image, images = [], mediaType = 'image', date, like
               variant="body1"
               sx={{
                 color: '#fff',
-                fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1.05rem' }, // Smaller font on mobile
-                lineHeight: { xs: 1.5, sm: 1.7 }, // Tighter line height on mobile
+                fontSize: { xs: '0.95rem', sm: '1rem', md: '1.05rem' },
+                lineHeight: 1.7,
                 letterSpacing: '0.01em',
                 fontFamily: "'Inter', 'Roboto', sans-serif",
                 fontWeight: 400,
