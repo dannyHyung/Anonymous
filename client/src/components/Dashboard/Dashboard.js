@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Typography, Grid, Box, IconButton, Tooltip, Snackbar, Alert } from '@mui/material';
+import { Container, Button, Typography, Grid, Box, IconButton, Tooltip, Snackbar, Alert, CircularProgress } from '@mui/material';
 import PostModal from './PostModal';
 import Post from './Post';
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -12,6 +12,7 @@ function Dashboard() {
     const { fetchPosts, createPost, deletePost, likePost } = useAPI();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [posts, setPosts] = useState([]);
     const [alert, setAlert] = useState({
@@ -26,34 +27,43 @@ function Dashboard() {
 
     const loadPosts = async () => {
         try {
+            setIsLoading(true);
             const response = await fetchPosts();
             setPosts(response.data);
         } catch (err) {
             console.error('Failed to fetch posts', err);
+            setAlert({
+                open: true,
+                message: 'Failed to load posts. Please refresh.',
+                severity: 'error'
+            });
+        }
+        finally {
+            setIsLoading(false)
         }
     };
 
     const handlePostCreated = async (content, images, mediaType) => {
         if (!currentUser) {
-          showAuthAlert();
-          return false;
+            showAuthAlert();
+            return false;
         }
-      
+
         try {
-          await createPost(content, images, mediaType);
-          await loadPosts(); // Use await to make sure posts are loaded
-          setShowModal(false); // Only close the modal after successful post creation
-          return true; // Return success
+            await createPost(content, images, mediaType);
+            await loadPosts(); // Use await to make sure posts are loaded
+            setShowModal(false); // Only close the modal after successful post creation
+            return true; // Return success
         } catch (error) {
-          console.error('Failed to create post:', error);
-          setAlert({
-            open: true,
-            message: 'Failed to create post. Please try again.',
-            severity: 'error'
-          });
-          return false; // Return failure
+            console.error('Failed to create post:', error);
+            setAlert({
+                open: true,
+                message: 'Failed to create post. Please try again.',
+                severity: 'error'
+            });
+            return false; // Return failure
         }
-      };
+    };
 
     const handleLikePost = async (postId) => {
         try {
@@ -104,35 +114,42 @@ function Dashboard() {
         <Box sx={{ backgroundColor: '#1d1d1d', minHeight: '100vh', paddingBottom: '50px' }}>
             <AuthHeader />
 
-            <Container
-                sx={{
-                    mt: { xs: "4%", sm: "3%", md: "2%" },
-                    px: { xs: 2, sm: 2, md: 3 } // Reduce padding on small screens
-                }}
-            >
-                <Grid container spacing={{ xs: 1, sm: 2, md: 3 }}> {/* Adjust spacing based on screen size */}
-                    {posts.map((post) => (
-                        <Grid item xs={12} key={post.post_id}>
-                            <Post
-                                id={post.post_id}
-                                content={post.content}
-                                image={post.image}
-                                images={post.images || []}
-                                mediaType={post.mediaType || 'image'}
-                                date={post.date}
-                                likes={post.likes}
-                                comments={post.comments}
-                                onLike={handleLikePost}
-                                onDelete={handleDeletePost}
-                                isAuthenticated={!!currentUser}
-                                onAuthNeeded={showAuthAlert}
-                                currentUserId={currentUser ? currentUser.uid : null}
-                                postUserId={post.userId}
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
-            </Container>
+            {isLoading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                    loading...
+                </Box>
+            ) : (
+                <Container
+                    sx={{
+                        mt: { xs: "4%", sm: "3%", md: "2%" },
+                        px: { xs: 2, sm: 2, md: 3 } // Reduce padding on small screens
+                    }}
+                >
+                    <Grid container spacing={{ xs: 1, sm: 2, md: 3 }}> {/* Adjust spacing based on screen size */}
+                        {posts.map((post) => (
+                            <Grid item xs={12} key={post.post_id}>
+                                <Post
+                                    id={post.post_id}
+                                    content={post.content}
+                                    image={post.image}
+                                    images={post.images || []}
+                                    mediaType={post.mediaType || 'image'}
+                                    date={post.date}
+                                    likes={post.likes}
+                                    comments={post.comments}
+                                    onLike={handleLikePost}
+                                    onDelete={handleDeletePost}
+                                    isAuthenticated={!!currentUser}
+                                    onAuthNeeded={showAuthAlert}
+                                    currentUserId={currentUser ? currentUser.uid : null}
+                                    postUserId={post.userId}
+                                />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Container>
+            )}
 
             <Box
                 sx={{
@@ -151,7 +168,7 @@ function Dashboard() {
                 }}
             >
                 <Tooltip title="Create Post" arrow>
-                    <IconButton onClick={handleAddPostClick}>
+                    <IconButton onClick={handleAddPostClick} disabled={isLoading}>
                         <AddBoxIcon sx={{
                             color: 'white',
                             fontSize: { xs: '40px', sm: '50px' } // Smaller icon on mobile
