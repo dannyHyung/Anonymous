@@ -115,9 +115,41 @@ function Dashboard() {
             <AuthHeader />
 
             {isLoading ? (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                    loading...
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 4,
+                    height: '200px'  // Give it more vertical space
+                }}>
+                    <CircularProgress
+                        sx={{
+                            color: '#0080ff',  // Match your app's primary color
+                            animation: 'pulse 1.5s ease-in-out infinite',
+                            '@keyframes pulse': {
+                                '0%': { opacity: 0.6, transform: 'scale(0.98)' },
+                                '50%': { opacity: 1, transform: 'scale(1.02)' },
+                                '100%': { opacity: 0.6, transform: 'scale(0.98)' }
+                            }
+                        }}
+                    />
+                    <Typography
+                        sx={{
+                            mt: 2,
+                            color: 'rgba(255,255,255,0.7)',
+                            fontSize: '0.95rem',
+                            fontFamily: "'Inter', 'Roboto', sans-serif",
+                            animation: 'fadeInOut 2s ease-in-out infinite',
+                            '@keyframes fadeInOut': {
+                                '0%': { opacity: 0.7 },
+                                '50%': { opacity: 1 },
+                                '100%': { opacity: 0.7 }
+                            }
+                        }}
+                    >
+                        Loading your feed...
+                    </Typography>
                 </Box>
             ) : (
                 <Container
