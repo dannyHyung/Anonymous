@@ -29,3 +29,4 @@ client/build
 public/
 firebase-debug.log
 firestore-debug.log
+database-debug.log
